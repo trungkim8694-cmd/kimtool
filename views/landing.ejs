@@ -384,9 +384,14 @@
             var slugInput = document.getElementById('slugInput');
             var previewBox = document.getElementById('previewBox');
             var liveSlugText = document.querySelector('.live-slug');
+            var fullUrlText = document.getElementById('fullUrlText');
             
             if (slugInput) {
                 var baseUrl = window.location.protocol + '//' + window.location.host + '/';
+                if (fullUrlText) {
+                    fullUrlText.innerHTML = baseUrl + '<span class="live-slug">slug</span>';
+                    liveSlugText = fullUrlText.querySelector('.live-slug');
+                }
                 
                 slugInput.addEventListener('input', function() {
                     var val = this.value.toLowerCase().trim().replace(/[^a-z0-9_-]/g, '');

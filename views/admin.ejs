@@ -414,6 +414,9 @@
             
             if (input) {
                 var baseUrl = window.location.protocol + '//' + window.location.host + '/';
+                if (previewText) {
+                    previewText.textContent = baseUrl + 'slug';
+                }
                 input.addEventListener('input', function() {
                     var val = this.value.toLowerCase().trim().replace(/[^a-z0-9_-]/g, '');
                     this.value = val;

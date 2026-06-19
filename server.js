@@ -415,6 +415,9 @@ userRouter.use((req, res, next) => {
 function checkUserAuth(req, res, next) {
     const db = req.userDb;
     const slug = req.userSlug;
+    if (!db || !db.settings) {
+        return next();
+    }
     if (db.settings.enablePasswordProtection) {
         const isAuth = req.session.authenticatedSlugs && req.session.authenticatedSlugs[slug];
         if (isAuth) {
