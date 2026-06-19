@@ -3,9 +3,13 @@ const session = require('express-session');
 const path = require('path');
 const fs = require('fs');
 const { authenticator } = require('otplib');
+const rateLimit = require('express-rate-limit');
 
 const app = express();
 const PORT = process.env.PORT || 3000;
+
+// Trust proxy for correct client IP detection behind Nginx proxy
+app.set('trust proxy', 1);
 
 // Database Paths
 const oldDbPath = path.join(__dirname, 'db.json');
@@ -278,6 +282,25 @@ app.use(session({
     cookie: { maxAge: 24 * 60 * 60 * 1000 } // 24 hours
 }));
 
+// Rate Limit configurations
+const globalLimiter = rateLimit({
+    windowMs: 1 * 60 * 1000, // 1 minute
+    limit: 60, // Limit each IP to 60 requests per minute
+    message: 'Quá nhiều yêu cầu từ địa chỉ IP này. Vui lòng thử lại sau 1 phút!',
+    standardHeaders: 'draft-7',
+    legacyHeaders: false,
+});
+
+const authLimiter = rateLimit({
+    windowMs: 1 * 60 * 1000, // 1 minute
+    limit: 5, // Limit each IP to 5 auth-related requests per minute
+    message: 'Bạn đã thực hiện quá nhiều yêu cầu đăng ký hoặc đăng nhập. Vui lòng đợi 1 phút trước khi thử lại!',
+    standardHeaders: 'draft-7',
+    legacyHeaders: false,
+});
+
+app.use(globalLimiter);
+
 // Default global local variables
 app.use((req, res, next) => {
     res.locals.authenticated = false;
@@ -294,7 +317,7 @@ app.get('/', (req, res) => {
 });
 
 // Self-Registration handler
-app.post('/register', (req, res) => {
+app.post('/register', authLimiter, (req, res) => {
     const { username, password } = req.body;
     if (!username || !password) {
         return res.redirect('/?error=Vui lòng điền đầy đủ tên đường dẫn và mật khẩu!');
@@ -324,7 +347,7 @@ app.get('/admin', (req, res) => {
     }
 });
 
-app.post('/admin/login', (req, res) => {
+app.post('/admin/login', authLimiter, (req, res) => {
     const { password } = req.body;
     if (password === adminPassword) {
         req.session.adminAuthenticated = true;
@@ -448,7 +471,7 @@ userRouter.get('/Login', (req, res) => {
     res.render('login', { error: req.query.error || null, slug: slug });
 });
 
-userRouter.post('/Login', (req, res) => {
+userRouter.post('/Login', authLimiter, (req, res) => {
     const { password } = req.body;
     const db = req.userDb;
     const slug = req.userSlug;
