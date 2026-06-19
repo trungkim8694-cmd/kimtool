@@ -1,0 +1,494 @@
+<%- include('partials/header', { title: 'Trang chủ', activePage: 'home' }) %>
+<%
+function getLink(url) {
+    if (url && url.startsWith('/')) {
+        return '/' + slug + url;
+    }
+    return url || '#';
+}
+%>
+            <!-- Render dynamic sorted sections -->
+            <% settings.displayOrder.forEach(function(section) { %>
+                
+                <% if (section === 'AccountInfo' && settings.displaySettings.ShowAccountInfo) { %>
+                    <!-- Khối Tài Khoản -->
+                    <div class="card mb-3">
+                        <div class="card-header"><i class="fas fa-user"></i> Tài Khoản</div>
+                        <div class="card-body">
+                            <% if (!activeAccount) { %>
+                                <p class="empty-message">Chưa có tài khoản nào được lấy.</p>
+                            <% } else { %>
+                                <% let dataIndex = 0; %>
+                                <input type="hidden" id="activeAccountEmail" value="<%= activeAccount.email || '' %>">
+                                <input type="hidden" id="activeAccountEmailPass" value="<%= activeAccount.emailPass || '' %>">
+                                <input type="hidden" id="activeAccountUsername" value="<%= activeAccount.username || '' %>">
+                                <input type="hidden" id="activeAccountPassword" value="<%= activeAccount.password || '' %>">
+                                <input type="hidden" id="activeAccountSecret" value="<%= activeAccount.secret || '' %>">
+                                <input type="hidden" id="activeAccountRefreshToken" value="<%= activeAccount.refreshToken || '' %>">
+                                <input type="hidden" id="activeAccountClientId" value="<%= activeAccount.clientId || '' %>">
+
+                                
+                                <div class="mb-2">
+                                    <label>Email liên kết:</label>
+                                    <div class="input-group mb-1">
+                                        <input id="accountData<%= dataIndex %>" type="text" class="form-control" value="<%= activeAccount.email %>" readonly>
+                                        <button class="btn btn-copy" type="button" onclick="copyText('accountData<%= dataIndex %>')">
+                                            <i class="fas fa-copy"></i>
+                                        </button>
+                                    </div>
+                                    <span id="feedback-accountData<%= dataIndex %>" class="copy-feedback">Đã copy!</span>
+                                </div>
+                                <% dataIndex++; %>
+
+                                <% if (activeAccount.emailPass) { %>
+                                    <div class="mb-2">
+                                        <label>Mật khẩu Email:</label>
+                                        <div class="input-group mb-1">
+                                            <input id="accountData<%= dataIndex %>" type="text" class="form-control" value="<%= activeAccount.emailPass %>" readonly>
+                                            <button class="btn btn-copy" type="button" onclick="copyText('accountData<%= dataIndex %>')">
+                                                <i class="fas fa-copy"></i>
+                                            </button>
+                                        </div>
+                                        <span id="feedback-accountData<%= dataIndex %>" class="copy-feedback">Đã copy!</span>
+                                    </div>
+                                    <% dataIndex++; %>
+                                <% } %>
+
+                                <% if (activeAccount.username) { %>
+                                    <div class="mb-2">
+                                        <label>Tài khoản Game/ID:</label>
+                                        <div class="input-group mb-1">
+                                            <input id="accountData<%= dataIndex %>" type="text" class="form-control" value="<%= activeAccount.username %>" readonly>
+                                            <button class="btn btn-copy" type="button" onclick="copyText('accountData<%= dataIndex %>')">
+                                                <i class="fas fa-copy"></i>
+                                            </button>
+                                        </div>
+                                        <span id="feedback-accountData<%= dataIndex %>" class="copy-feedback">Đã copy!</span>
+                                    </div>
+                                    <% dataIndex++; %>
+                                <% } %>
+
+                                <% if (activeAccount.password) { %>
+                                    <div class="mb-2">
+                                        <label>Mật khẩu Game/ID:</label>
+                                        <div class="input-group mb-1">
+                                            <input id="accountData<%= dataIndex %>" type="text" class="form-control" value="<%= activeAccount.password %>" readonly>
+                                            <button class="btn btn-copy" type="button" onclick="copyText('accountData<%= dataIndex %>')">
+                                                <i class="fas fa-copy"></i>
+                                            </button>
+                                        </div>
+                                        <span id="feedback-accountData<%= dataIndex %>" class="copy-feedback">Đã copy!</span>
+                                    </div>
+                                    <% dataIndex++; %>
+                                <% } %>
+
+                                <% if (activeAccount.secret) { %>
+                                    <div class="mb-2">
+                                        <label>KHÓA BẢO MẬT 2FA (SECRET):</label>
+                                        <div class="input-group mb-1">
+                                            <input id="accountData<%= dataIndex %>" type="text" class="form-control" value="<%= activeAccount.secret %>" readonly>
+                                            <button class="btn btn-copy" type="button" onclick="copyText('accountData<%= dataIndex %>')">
+                                                <i class="fas fa-copy"></i>
+                                            </button>
+                                        </div>
+                                        <span id="feedback-accountData<%= dataIndex %>" class="copy-feedback">Đã copy!</span>
+                                        <% dataIndex++; %>
+                                    </div>
+
+                                    <div class="mb-2">
+                                        <label>Mã OTP 2FA hiện tại (<span id="otpCountdown">30s</span>):</label>
+                                        <div class="input-group mb-1">
+                                            <input id="otpCurrent" type="text" class="form-control text-center fw-bold text-success fs-5" value="Đang tải..." readonly>
+                                            <button class="btn btn-copy" type="button" onclick="copyText('otpCurrent')">
+                                                <i class="fas fa-copy"></i>
+                                            </button>
+                                        </div>
+                                        <span id="feedback-otpCurrent" class="copy-feedback">Đã copy!</span>
+                                    </div>
+                                <% } %>
+
+                                <% if (activeAccount.refreshToken) { %>
+                                    <input id="accountData<%= dataIndex %>" type="hidden" value="<%= activeAccount.refreshToken %>">
+                                    <% dataIndex++; %>
+                                <% } %>
+                                <% if (activeAccount.clientId) { %>
+                                    <input id="accountData<%= dataIndex %>" type="hidden" value="<%= activeAccount.clientId %>">
+                                    <% dataIndex++; %>
+                                <% } %>
+
+                                <!-- Nút lấy mã xác minh OTP hoặc Email Code -->
+                                <button id="getCodeBtn" class="btn btn-success w-100 mt-2">
+                                    <i class="fas fa-envelope-open-text"></i> Lấy mã OTP/Email code
+                                </button>
+
+                                <div id="codeResult" class="mt-3" style="display: none;">
+                                    <div class="code-result">
+                                        <div class="code-header"><i class="fas fa-key"></i> Kết quả mã OTP / Email Code</div>
+                                        <div id="codeLoading" class="code-loading" style="display: none;">
+                                            <div class="spinner"></div>
+                                            <span class="text-muted small">Đang kiểm tra hòm thư...</span>
+                                        </div>
+                                        <div id="codeData" class="code-data" style="display: none;"></div>
+                                        <div id="codeError" class="code-error" style="display: none;"></div>
+                                    </div>
+                                </div>
+                            <% } %>
+
+                            <!-- Nút lấy & kích tài khoản -->
+                            <div class="d-flex flex-column align-items-center mt-3">
+                                <a href="/<%= slug %>/Home/GetAccount" class="btn btn-primary w-100 mb-2">
+                                    <i class="fas fa-download"></i> Lấy Tài khoản
+                                </a>
+                                <% if (activeAccount) { %>
+                                    <button id="reqKichdiemBtn" class="btn btn-accent w-100 mb-2">
+                                        <i class="fas fa-user-check"></i> Yêu cầu kích điểm
+                                    </button>
+                                <% } else { %>
+                                    <button class="btn btn-accent w-100 mb-2" disabled>
+                                        <i class="fas fa-user-check"></i> Yêu cầu kích điểm
+                                    </button>
+                                <% } %>
+                            </div>
+                        </div>
+                    </div>
+                <% } %>
+
+                <% if (section === 'VideoList' && settings.displaySettings.ShowVideoList) { %>
+                    <!-- Khối Xem Video -->
+                    <div class="card mb-3">
+                        <div class="card-header"><i class="fas fa-film"></i> Xem Video</div>
+                        <div class="card-body">
+                            <div class="video-buttons">
+                                <% if (settings.displaySettings.ShowVideoCustom) { %>
+                                    <a href="<%= getLink(settings.videoConfigs.VideoCustom.link) %>" target="_blank" class="btn btn-video-action mb-2">
+                                        <i class="fas fa-folder-open"></i> <%= settings.videoConfigs.VideoCustom.title %>
+                                    </a>
+                                <% } %>
+                                
+                                <% if (settings.displaySettings.ShowRegularVideo60) { %>
+                                    <a href="<%= getLink(settings.videoConfigs.RegularVideo60.link) %>" target="_blank" class="btn btn-video-action mb-2">
+                                        <i class="fas fa-play-circle"></i> <%= settings.videoConfigs.RegularVideo60.title %>
+                                    </a>
+                                <% } %>
+                                
+                                <% if (settings.displaySettings.ShowRegularVideo180) { %>
+                                    <a href="<%= getLink(settings.videoConfigs.RegularVideo180.link) %>" target="_blank" class="btn btn-video-action mb-2">
+                                        <i class="fas fa-play-circle"></i> <%= settings.videoConfigs.RegularVideo180.title %>
+                                    </a>
+                                <% } %>
+
+                                <% if (settings.displaySettings.ShowLiteVideo10) { %>
+                                    <a href="<%= getLink(settings.videoConfigs.LiteVideo10.link) %>" target="_blank" class="btn btn-video-action mb-2">
+                                        <i class="fas fa-play-circle"></i> <%= settings.videoConfigs.LiteVideo10.title %>
+                                    </a>
+                                <% } %>
+                                
+                                <% if (settings.displaySettings.ShowLiteVideo60) { %>
+                                    <a href="<%= getLink(settings.videoConfigs.LiteVideo60.link) %>" target="_blank" class="btn btn-video-action mb-2">
+                                        <i class="fas fa-play-circle"></i> <%= settings.videoConfigs.LiteVideo60.title %>
+                                    </a>
+                                <% } %>
+                                
+                                <% if (settings.displaySettings.ShowLiteVideo180) { %>
+                                    <a href="<%= getLink(settings.videoConfigs.LiteVideo180.link) %>" target="_blank" class="btn btn-video-action">
+                                        <i class="fas fa-play-circle"></i> <%= settings.videoConfigs.LiteVideo180.title %>
+                                    </a>
+                                <% } %>
+                            </div>
+                        </div>
+                    </div>
+                <% } %>
+
+                <% if (section === 'RandomEmail' && settings.displaySettings.ShowRandomEmail) { %>
+                    <!-- Khối Email -->
+                    <div class="card mb-3">
+                        <div class="card-header"><i class="fas fa-envelope"></i> Email</div>
+                        <div class="card-body">
+                            <div class="mb-2">
+                                <label>Địa chỉ Email:</label>
+                                <div class="input-group mb-1">
+                                    <input id="customEmail" type="text" class="form-control" value="<%= randomEmail %>" readonly>
+                                    <button class="btn btn-copy" type="button" onclick="copyText('customEmail')">
+                                        <i class="fas fa-copy"></i>
+                                    </button>
+                                </div>
+                                <span id="feedback-customEmail" class="copy-feedback">Đã copy!</span>
+                            </div>
+                            <div class="mb-2">
+                                <label>Mật khẩu Email:</label>
+                                <div class="input-group mb-1">
+                                    <input id="customEmailPassword" type="text" class="form-control" value="<%= settings.customEmailPassword || '' %>" readonly>
+                                    <button class="btn btn-copy" type="button" onclick="copyText('customEmailPassword')">
+                                        <i class="fas fa-copy"></i>
+                                    </button>
+                                </div>
+                                <span id="feedback-customEmailPassword" class="copy-feedback">Đã copy!</span>
+                            </div>
+                        </div>
+                    </div>
+                <% } %>
+
+                <% if (section === 'ICloudInfo' && settings.displaySettings.ShowICloudInfo) { %>
+                    <!-- Khối Thông tin iCloud -->
+                    <div class="card mb-3">
+                        <div class="card-header"><i class="fas fa-cloud"></i> Thông tin iCloud</div>
+                        <div class="card-body">
+                            <div class="mb-2">
+                                <label>Tài khoản:</label>
+                                <div class="input-group mb-1">
+                                    <input id="iCloudAccount" type="text" class="form-control" value="<%= settings.icloudAccount || '' %>" readonly>
+                                    <button class="btn btn-copy" type="button" onclick="copyText('iCloudAccount')">
+                                        <i class="fas fa-copy"></i>
+                                    </button>
+                                </div>
+                                <span id="feedback-iCloudAccount" class="copy-feedback">Đã copy!</span>
+                            </div>
+                            <div class="mb-2">
+                                <label>Mật khẩu:</label>
+                                <div class="input-group mb-1">
+                                    <input id="iCloudPassword" type="text" class="form-control" value="<%= settings.icloudPassword || '' %>" readonly>
+                                    <button class="btn btn-copy" type="button" onclick="copyText('iCloudPassword')">
+                                        <i class="fas fa-copy"></i>
+                                    </button>
+                                </div>
+                                <span id="feedback-iCloudPassword" class="copy-feedback">Đã copy!</span>
+                            </div>
+                        </div>
+                    </div>
+                <% } %>
+
+            <% }) %>
+
+    <script>
+        function copyText(id) {
+            var inp = document.getElementById(id);
+            if (!inp) return;
+            inp.select();
+            inp.setSelectionRange(0, 99999);
+            document.execCommand("copy");
+            var fb = document.getElementById("feedback-" + id);
+            if (fb) {
+                fb.style.display = "block";
+                setTimeout(function() {
+                    fb.style.display = "none";
+                }, 2000);
+            }
+        }
+
+        (function() {
+            function initPage() {
+                // --- Auto update OTP (2FA in account) ---
+                var secretEl = document.getElementById('activeAccountSecret');
+                var secret = secretEl ? secretEl.value : '';
+
+                if (secret) {
+                    var otpInput = document.getElementById('otpCurrent');
+                    var countdown = document.getElementById('otpCountdown');
+                    var remain = 0;
+                    var period = 30;
+
+                    var refreshOtp = function() {
+                        fetch('/<%= slug %>/Home/GetOtp?secret=' + encodeURIComponent(secret))
+                            .then(function(r) { return r.json(); })
+                            .then(function(d) {
+                                if (d.status) {
+                                    otpInput.value = d.otp || '';
+                                    otpInput.className = 'form-control text-center fw-bold text-success fs-5';
+                                    remain = d.remaining || period;
+                                    if (countdown) countdown.textContent = remain + 's';
+                                } else {
+                                    otpInput.value = d.message || 'Lỗi giải mã';
+                                    otpInput.className = 'form-control text-center fw-bold text-danger fs-6';
+                                }
+                            })
+                            .catch(function(err) {
+                                otpInput.value = 'Lỗi kết nối';
+                                otpInput.className = 'form-control text-center fw-bold text-danger fs-6';
+                            });
+                    };
+
+                    refreshOtp(); // Immediate execution on load
+
+                    setInterval(function () {
+                        if (remain <= 1) {
+                            refreshOtp();
+                        } else {
+                            remain--;
+                            if (countdown) countdown.textContent = remain + 's';
+                        }
+                    }, 1000);
+                }
+
+                // --- Fetch verification code ---
+                var btn = document.getElementById('getCodeBtn');
+                if (btn) {
+                    btn.addEventListener('click', function () {
+                        document.getElementById('codeResult').style.display = 'block';
+                        document.getElementById('codeLoading').style.display = 'flex';
+                        document.getElementById('codeData').style.display = 'none';
+                        document.getElementById('codeError').style.display = 'none';
+
+                        // Collect all account fields in the exact correct order (using ES5 compatible queries to avoid syntax crashes on older browsers/webviews)
+                        var emailEl = document.getElementById('activeAccountEmail');
+                        var emailPassEl = document.getElementById('activeAccountEmailPass');
+                        var usernameEl = document.getElementById('activeAccountUsername');
+                        var passwordEl = document.getElementById('activeAccountPassword');
+                        var secretEl = document.getElementById('activeAccountSecret');
+                        var refreshTokenEl = document.getElementById('activeAccountRefreshToken');
+                        var clientIdEl = document.getElementById('activeAccountClientId');
+
+                        var arr = [
+                            emailEl ? emailEl.value : '',
+                            emailPassEl ? emailPassEl.value : '',
+                            usernameEl ? usernameEl.value : '',
+                            passwordEl ? passwordEl.value : '',
+                            secretEl ? secretEl.value : '',
+                            refreshTokenEl ? refreshTokenEl.value : '',
+                            clientIdEl ? clientIdEl.value : ''
+                        ];
+
+                        var mailReadMode = '<%= settings.mailReadMode || "" %>';
+
+                        fetch('/<%= slug %>/Home/AnalyzeAccountData', {
+                            method: 'POST',
+                            headers: { 'Content-Type': 'application/json' },
+                            body: JSON.stringify(arr)
+                        })
+                        .then(function(r) { return r.json(); })
+                        .then(function(d) {
+                            if (!d.email) throw new Error('Thiếu dữ liệu email.');
+
+                            // MailTM client-side logic
+                            if (mailReadMode.toLowerCase() === 'mailtm') {
+                                return fetch('https://api.mail.tm/token', {
+                                    method: 'POST',
+                                    headers: { 'Content-Type': 'application/json' },
+                                    body: JSON.stringify({ address: d.email, password: d.password })
+                                })
+                                .then(function(r) {
+                                    if (!r.ok) throw new Error('Không đăng nhập được Mail TM: ' + r.status);
+                                    return r.json();
+                                })
+                                .then(function(tokenData) {
+                                    var token = tokenData.token;
+                                    if (!token) throw new Error('Không lấy được token Mail TM.');
+                                    return fetch('https://api.mail.tm/messages?page=1', {
+                                        headers: { 'Authorization': 'Bearer ' + token }
+                                    });
+                                })
+                                .then(function(r) {
+                                    if (!r.ok) throw new Error('Không lấy được danh sách mail: ' + r.status);
+                                    return r.json();
+                                })
+                                .then(function(mailData) {
+                                    var members = mailData['hydra:member'] || [];
+                                    var otpCode = null;
+                                    var otpContent = '';
+                                    for (var i = 0; i < members.length; i++) {
+                                        var m = members[i];
+                                        var subject = m.subject || '';
+                                        var match = subject.match(/\d{4,8}/);
+                                        if (match) {
+                                            otpCode = match[0];
+                                            otpContent = subject;
+                                            break;
+                                        }
+                                    }
+                                    if (otpCode) return { status: true, code: otpCode, content: otpContent };
+                                    return { status: false, message: 'Không tìm thấy mail chứa mã code OTP!' };
+                                });
+                            }
+
+                            // Otherwise call backend GetCode endpoint with full auth params
+                            return fetch('/<%= slug %>/Home/GetCode', {
+                                method: 'POST',
+                                headers: { 'Content-Type': 'application/json' },
+                                body: JSON.stringify({ 
+                                    email: d.email, 
+                                    password: d.password,
+                                    refreshToken: d.refreshToken || '',
+                                    clientId: d.clientId || ''
+                                })
+                            }).then(function(r) { return r.json(); });
+                        })
+                        .then(function(d) {
+                            document.getElementById('codeLoading').style.display = 'none';
+                            var dataDiv = document.getElementById('codeData');
+
+                            if (d.code && d.code.indexOf("emailfake") !== -1) {
+                                dataDiv.style.display = 'block';
+                                dataDiv.innerHTML = 
+                                    '<button class="btn btn-warning w-100" onclick="window.open(\'' + d.code + '\', \'_blank\')">' +
+                                        '<i class="fas fa-envelope"></i> Bấm vào đây để lấy mã email' +
+                                    '</button>';
+                                return;
+                            }
+
+                            if (d.status === true) {
+                                dataDiv.style.display = 'block';
+                                dataDiv.innerHTML = 
+                                    '<div class="success-message">Lấy code thành công!</div>' +
+                                    '<div class="mb-2">' +
+                                        '<label>Mã Code OTP:</label>' +
+                                        '<div class="input-group mb-1">' +
+                                            '<input id="resultCode" class="form-control" value="' + (d.code || '') + '" readonly>' +
+                                            '<button class="btn btn-copy" onclick="copyText(\'resultCode\')"><i class="fas fa-copy"></i></button>' +
+                                        '</div><span id="feedback-resultCode" class="copy-feedback">Đã copy!</span>' +
+                                    '</div>' +
+                                    '<div class="mb-2">' +
+                                        '<label>Nội dung Email:</label>' +
+                                        '<div class="input-group mb-1">' +
+                                            '<input id="resultContent" class="form-control" value="' + (d.content || '') + '" readonly>' +
+                                            '<button class="btn btn-copy" onclick="copyText(\'resultContent\')"><i class="fas fa-copy"></i></button>' +
+                                        '</div><span id="feedback-resultContent" class="copy-feedback">Đã copy!</span>' +
+                                    '</div>';
+                            } else {
+                                dataDiv.style.display = 'none';
+                                document.getElementById('codeError').style.display = 'block';
+                                document.getElementById('codeError').textContent = d.message || 'Không có mã code mới trong hộp thư.';
+                            }
+                        })
+                        .catch(function(err) {
+                            document.getElementById('codeLoading').style.display = 'none';
+                            document.getElementById('codeError').style.display = 'block';
+                            document.getElementById('codeError').textContent = err.message || 'Đã xảy ra lỗi khi lấy mã code.';
+                        });
+                    });
+                }
+
+                // --- Yêu cầu kích điểm ---
+                var reqBtn = document.getElementById('reqKichdiemBtn');
+                if (reqBtn) {
+                    reqBtn.addEventListener('click', function() {
+                        reqBtn.disabled = true;
+                        var originalText = reqBtn.innerHTML;
+                        reqBtn.innerHTML = '<span class="spinner-border spinner-border-sm me-2" role="status" aria-hidden="true"></span> Đang chạy kích điểm...';
+                        
+                        fetch('/<%= slug %>/Home/KichDiem', {
+                            method: 'POST',
+                            headers: { 'Content-Type': 'application/json' }
+                        })
+                        .then(function(r) { return r.json(); })
+                        .then(function(d) {
+                            reqBtn.disabled = false;
+                            reqBtn.innerHTML = originalText;
+                            alert(d.message || 'Thực hiện kích điểm xong!');
+                        })
+                        .catch(function(err) {
+                            reqBtn.disabled = false;
+                            reqBtn.innerHTML = originalText;
+                            alert('Đã xảy ra lỗi kết nối: ' + err.message);
+                        });
+                    });
+                }
+            }
+
+            // Đảm bảo chạy đúng kể cả khi DOM đã sẵn sàng trước khi script thực thi
+            if (document.readyState === 'loading') {
+                document.addEventListener('DOMContentLoaded', initPage);
+            } else {
+                initPage();
+            }
+        })();
+    </script>
+<%- include('partials/footer') %>

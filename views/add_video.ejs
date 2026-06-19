@@ -1,0 +1,215 @@
+<%- include('partials/header', { title: 'Thêm Video Custom', activePage: 'settings' }) %>
+
+<div class="mb-3">
+    <a href="/<%= slug %>/Settings" class="btn btn-secondary">
+        <i class="fas fa-arrow-left"></i> Quay lại Cài đặt
+    </a>
+</div>
+
+<!-- Cảnh báo / Thông báo -->
+<% if (successMsg) { %>
+    <div class="alert-custom alert-success-custom mb-3">
+        <i class="fas fa-check-circle"></i> <%= successMsg %>
+    </div>
+<% } %>
+<% if (errorMsg) { %>
+    <div class="alert-custom alert-danger-custom mb-3">
+        <i class="fas fa-exclamation-circle"></i> <%= errorMsg %>
+    </div>
+<% } %>
+
+<!-- Dữ liệu ban đầu để nạp ghi chú -->
+<script>
+    var initialVideos = <%- JSON.stringify(videos) %>;
+</script>
+
+<div class="card mb-3">
+    <div class="card-header d-flex justify-content-between align-items-center">
+        <div><i class="fas fa-video"></i> Đường Dẫn Video (Video)</div>
+        <div id="saveStatus" style="font-size: 0.8rem; font-weight: 500;">
+            <i class="fas fa-check-circle text-success"></i> Đã lưu tự động
+        </div>
+    </div>
+    <div class="card-body">
+        <div class="mb-3">
+            <label class="form-label fw-bold">Nhập danh sách video (Mỗi link trên 1 dòng)</label>
+            <textarea class="form-control textarea-custom" name="videos_raw" rows="8" placeholder="https://vt.tiktok.com/ZSUwetdS7/&#10;https://vt.tiktok.com/ZSUwebqJX/"><%= videos.map(function(v) { return v.url; }).join('\n') %></textarea>
+        </div>
+        
+        <!-- Bảng Xem Trước & Ghi Chú Video -->
+        <div id="previewContainer" class="mb-0" style="display: none;">
+            <label class="form-label fw-bold"><i class="fas fa-list-ol"></i> Bảng Xem Trước & Ghi Chú Video</label>
+            <div class="card border-0" style="background: rgba(255, 255, 255, 0.02); border: 1px solid var(--border-color) !important;">
+                <div class="card-body p-3" style="max-height: 450px; overflow-y: auto;" id="previewList">
+                    <!-- Preview rows dynamic generation -->
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script>
+    document.addEventListener("DOMContentLoaded", function() {
+        var textarea = document.querySelector('textarea[name="videos_raw"]');
+        var container = document.getElementById('previewContainer');
+        var listDiv = document.getElementById('previewList');
+        
+        if (textarea && container && listDiv) {
+            // Khởi tạo map ghi chú từ dữ liệu ban đầu
+            var existingNotes = {};
+            if (typeof initialVideos !== 'undefined' && initialVideos) {
+                for (var i = 0; i < initialVideos.length; i++) {
+                    existingNotes[initialVideos[i].url] = initialVideos[i].note || '';
+                }
+            }
+            
+            // Logic Debounce tự động lưu
+            var saveTimeout = null;
+            var triggerAutoSave = function() {
+                showSaveStatus('saving');
+                if (saveTimeout) {
+                    clearTimeout(saveTimeout);
+                }
+                saveTimeout = setTimeout(function() {
+                    performSave();
+                }, 800); // Tự động lưu sau 800ms không gõ
+            };
+            
+            var performSave = function() {
+                var urls = [];
+                var notes = [];
+                
+                var rawLines = textarea.value.split('\n');
+                for (var i = 0; i < rawLines.length; i++) {
+                    var u = rawLines[i].trim();
+                    if (u.length > 0) {
+                        urls.push(u);
+                        notes.push(existingNotes[u] || '');
+                    }
+                }
+                
+                var params = new URLSearchParams();
+                for (var j = 0; j < urls.length; j++) {
+                    params.append('urls', urls[j]);
+                    params.append('notes', notes[j]);
+                }
+                
+                fetch('/<%= slug %>/Video/SaveVideos', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/x-www-form-urlencoded'
+                    },
+                    body: params
+                })
+                .then(function(res) {
+                    return res.json();
+                })
+                .then(function(json) {
+                    if (json && json.status) {
+                        showSaveStatus('saved');
+                    } else {
+                        showSaveStatus('error', json ? json.message : 'Lỗi không xác định');
+                    }
+                })
+                .catch(function(err) {
+                    showSaveStatus('error', err.message || 'Lỗi kết nối mạng');
+                });
+            };
+            
+            var showSaveStatus = function(status, message) {
+                var statusDiv = document.getElementById('saveStatus');
+                if (!statusDiv) return;
+                
+                if (status === 'saving') {
+                    statusDiv.innerHTML = '<i class="fas fa-spinner fa-spin text-info me-1"></i> <span class="text-info">Đang lưu tự động...</span>';
+                } else if (status === 'saved') {
+                    statusDiv.innerHTML = '<i class="fas fa-check-circle text-success me-1"></i> <span class="text-success">Đã lưu tự động</span>';
+                } else if (status === 'error') {
+                    statusDiv.innerHTML = '<i class="fas fa-exclamation-circle text-danger me-1"></i> <span class="text-danger">' + (message || 'Lỗi lưu dữ liệu') + '</span>';
+                }
+            };
+            
+            var updatePreview = function() {
+                var text = textarea.value;
+                var rawLines = text.split('\n');
+                var lines = [];
+                for (var i = 0; i < rawLines.length; i++) {
+                    var l = rawLines[i].trim();
+                    if (l.length > 0) {
+                        lines.push(l);
+                    }
+                }
+                
+                if (lines.length === 0) {
+                    container.style.display = 'none';
+                    listDiv.innerHTML = '';
+                    return;
+                }
+                
+                container.style.display = 'block';
+                
+                // Bảo toàn ghi chú hiện tại của các phần tử DOM cũ
+                var noteInputs = listDiv.querySelectorAll('input[name="notes"]');
+                for (var k = 0; k < noteInputs.length; k++) {
+                    var urlKey = noteInputs[k].getAttribute('data-url');
+                    if (urlKey) {
+                        existingNotes[urlKey] = noteInputs[k].value;
+                    }
+                }
+                
+                var html = '';
+                for (var index = 0; index < lines.length; index++) {
+                    var line = lines[index];
+                    var prevNote = existingNotes[line] || '';
+                    
+                    html += '<div class="preview-row mb-3 p-3 rounded" style="background: rgba(255,255,255,0.03); border: 1px solid var(--border-color);">' +
+                                '<div class="d-flex align-items-center justify-content-between mb-2">' +
+                                    '<div class="d-flex align-items-center flex-grow-1 overflow-hidden me-2">' +
+                                        '<span class="badge me-2" style="font-size: 0.75rem; background-color: var(--accent-light) !important; color: var(--accent-color) !important;">' + (index + 1) + '</span>' +
+                                        '<span class="font-monospace text-truncate" style="font-size: 0.85rem; color: var(--text-color);">' + escapeHtml(line) + '</span>' +
+                                    '</div>' +
+                                    '<a href="' + escapeHtml(line) + '" target="_blank" class="btn btn-sm btn-info" style="padding: 4px 10px; font-size: 0.75rem; white-space: nowrap;">' +
+                                        '<i class="fas fa-external-link-alt"></i><span class="ms-1">Mở Link</span>' +
+                                    '</a>' +
+                                '</div>' +
+                                '<div class="note-input-container">' +
+                                    '<input type="text" name="notes" class="form-control form-control-sm" placeholder="Nhập ghi chú / mô tả cho video này (tùy chọn)..." value="' + escapeHtml(prevNote) + '" data-url="' + escapeHtml(line) + '" style="background: var(--input-bg); color: var(--text-color); border: 1px solid var(--border-color);">' +
+                                '</div>' +
+                            '</div>';
+                }
+                listDiv.innerHTML = html;
+                
+                // Gán sự kiện lưu khi sửa ghi chú
+                var newInputs = listDiv.querySelectorAll('input[name="notes"]');
+                for (var m = 0; m < newInputs.length; m++) {
+                    newInputs[m].addEventListener('input', function() {
+                        var urlKey = this.getAttribute('data-url');
+                        if (urlKey) {
+                            existingNotes[urlKey] = this.value;
+                        }
+                        triggerAutoSave();
+                    });
+                }
+            };
+            
+            textarea.addEventListener('input', function() {
+                updatePreview();
+                triggerAutoSave();
+            });
+            
+            // Chạy preview ban đầu khi nạp dữ liệu
+            updatePreview();
+        }
+    });
+
+    function escapeHtml(text) {
+        return text
+            .replace(/&/g, "&amp;")
+            .replace(/</g, "&lt;")
+            .replace(/>/g, "&gt;")
+            .replace(/"/g, "&quot;")
+            .replace(/'/g, "&#039;");
+    }
+</script>
+
+<%- include('partials/footer') %>

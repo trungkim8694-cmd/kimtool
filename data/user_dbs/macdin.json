@@ -1,0 +1,134 @@
+{
+  "accounts": [
+    {
+      "id": 1,
+      "email": "test1@edudc.org",
+      "emailPass": "pass1",
+      "username": "user1",
+      "password": "pwd1",
+      "secret": "2fa1",
+      "refreshToken": "",
+      "clientId": "",
+      "fetched": false
+    },
+    {
+      "id": 2,
+      "email": "test1@edudc.org",
+      "emailPass": "pass1",
+      "username": "user1",
+      "password": "pwd1",
+      "secret": "2fa11",
+      "refreshToken": "",
+      "clientId": "",
+      "fetched": false
+    }
+  ],
+  "videos": [
+    {
+      "id": 1,
+      "url": "https://vt.tiktok.com/vid1",
+      "note": "Video 1"
+    },
+    {
+      "id": 2,
+      "url": "https://vt.tiktok.com/vid2",
+      "note": "Video 2"
+    }
+  ],
+  "links": [
+    {
+      "id": 1,
+      "url": "https://google.com",
+      "note": "Ghi chú Google"
+    },
+    {
+      "id": 2,
+      "url": "https://facebook.com",
+      "note": "Ghi chú FB"
+    },
+    {
+      "id": 3,
+      "url": "https://facebook.com",
+      "note": "Ghi chú FB"
+    },
+    {
+      "id": 4,
+      "url": "AdaraVillanuevaqew55326s@edudc.org|Nxnt3979|adaravillanuevang667@gmail.com|Password123",
+      "note": ""
+    }
+  ],
+  "settings": {
+    "mailReadMode": "MailTM",
+    "enablePasswordProtection": true,
+    "password": "1",
+    "icloudAccount": "trungkim",
+    "icloudPassword": "trungkim",
+    "displaySettings": {
+      "ShowVideoList": true,
+      "ShowRegularVideo": true,
+      "ShowLiteVideo": true,
+      "ShowAccountInfo": true,
+      "ShowRandomEmail": true,
+      "ShowICloudInfo": true,
+      "ShowVideoCustom": true,
+      "ShowRegularVideo60": true,
+      "ShowRegularVideo180": true,
+      "ShowLiteVideo10": true,
+      "ShowLiteVideo60": true,
+      "ShowLiteVideo180": true
+    },
+    "displayOrder": [
+      "VideoList",
+      "AccountInfo",
+      "RandomEmail",
+      "ICloudInfo"
+    ],
+    "customEmail": "test@email.com",
+    "videoConfigs": {
+      "VideoCustom": {
+        "title": "Video Custom (Kho)",
+        "link": "/Home/GetVideoFromFile"
+      },
+      "RegularVideo60": {
+        "title": "Video Thường 60p",
+        "link": "/Home/GetRandomVideo?type=regular"
+      },
+      "RegularVideo180": {
+        "title": "Video Thường 180p",
+        "link": "https://www.icloud.com/shortcuts/8e77d69aafde4b41bbb982e21a08265c"
+      },
+      "LiteVideo10": {
+        "title": "Video Lite 10p",
+        "link": "/Home/GetRandomVideo10?type=lite"
+      },
+      "LiteVideo60": {
+        "title": "Video Lite 60p",
+        "link": "/Home/GetRandomVideo?type=lite"
+      },
+      "LiteVideo180": {
+        "title": "Video Lite 180p",
+        "link": "https://www.icloud.com/shortcuts/87bb09da441a49a5b637534658b04578"
+      }
+    },
+    "customEmailPassword": "abc123"
+  },
+  "activeAccountId": null,
+  "kichdiemAccounts": [
+    {
+      "id": 1,
+      "email": "ktest1@edudc.org",
+      "emailPass": "kpass1",
+      "username": "kuser1",
+      "password": "kpwd1",
+      "fetched": false
+    },
+    {
+      "id": 2,
+      "email": "test1@edudc.org",
+      "emailPass": "pass1",
+      "username": "user1",
+      "password": "pwd1",
+      "fetched": false
+    }
+  ]
+}

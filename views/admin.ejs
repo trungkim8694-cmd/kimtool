@@ -1,0 +1,431 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <meta name="color-scheme" content="light dark" />
+    <title>Trang quản trị hệ thống - Kim Tool</title>
+    <!-- Script chặn nhấp nháy giao diện -->
+    <script>
+        (function() {
+            var theme = localStorage.getItem('theme') || 'dark';
+            if (theme === 'light') {
+                document.documentElement.classList.add('light-theme');
+            }
+        })();
+    </script>
+    <!-- Bootstrap 5 CSS -->
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" />
+    <!-- Google Fonts: Inter & Outfit -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=Outfit:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+    <!-- FontAwesome 6 -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" />
+    <style>
+        :root {
+            color-scheme: dark;
+            --bg-color: #0b0f19;
+            --primary-glow: rgba(59, 130, 246, 0.1);
+            --accent-glow: rgba(168, 85, 247, 0.1);
+            --text-color: #f3f4f6;
+            --text-muted: #9ca3af;
+            --accent-color: #3b82f6;
+            --accent-purple: #a855f7;
+            --card-bg: rgba(17, 24, 39, 0.6);
+            --border-color: rgba(255, 255, 255, 0.08);
+            --input-bg: rgba(31, 41, 55, 0.5);
+            --input-focus-bg: rgba(31, 41, 55, 0.8);
+            --danger-glow: rgba(239, 68, 68, 0.15);
+        }
+
+        /* Light theme variables */
+        :root.light-theme {
+            color-scheme: light;
+            --bg-color: #f3f4f6;
+            --primary-glow: rgba(59, 130, 246, 0.05);
+            --accent-glow: rgba(168, 85, 247, 0.05);
+            --text-color: #1f2937;
+            --text-muted: #556070;
+            --accent-color: #2563eb;
+            --accent-purple: #9333ea;
+            --card-bg: rgba(255, 255, 255, 0.85);
+            --border-color: rgba(0, 0, 0, 0.08);
+            --input-bg: rgba(255, 255, 255, 0.95);
+            --input-focus-bg: rgba(255, 255, 255, 1);
+        }
+
+        .text-muted {
+            color: var(--text-muted) !important;
+        }
+
+        .form-control-premium::placeholder {
+            color: var(--text-muted) !important;
+            opacity: 0.8;
+        }
+
+        .user-password-code {
+            color: var(--text-color) !important;
+            background: rgba(255, 255, 255, 0.06);
+            padding: 0.2rem 0.5rem;
+            border-radius: 6px;
+            font-family: monospace;
+        }
+        :root.light-theme .user-password-code {
+            background: rgba(0, 0, 0, 0.06);
+        }
+
+        body {
+            background-color: var(--bg-color);
+            background-image: 
+                radial-gradient(at 10% 10%, var(--primary-glow) 0px, transparent 50%),
+                radial-gradient(at 90% 90%, var(--accent-glow) 0px, transparent 50%);
+            color: var(--text-color);
+            font-family: 'Inter', sans-serif;
+            min-height: 100vh;
+            margin: 0;
+            padding: 3rem 0;
+        }
+
+        .title-brand {
+            font-family: 'Outfit', sans-serif;
+            font-weight: 800;
+            background: linear-gradient(135deg, #3b82f6 0%, #a855f7 100%);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+        }
+
+        .glass-card {
+            background: var(--card-bg);
+            backdrop-filter: blur(16px);
+            -webkit-backdrop-filter: blur(16px);
+            border: 1px solid var(--border-color);
+            border-radius: 20px;
+            box-shadow: 0 15px 35px rgba(0, 0, 0, 0.2);
+            padding: 2.5rem;
+        }
+
+        .stat-card {
+            background: rgba(255, 255, 255, 0.02);
+            border: 1px solid var(--border-color);
+            border-radius: 16px;
+            padding: 1.5rem;
+            text-align: center;
+        }
+
+        .stat-number {
+            font-size: 2.2rem;
+            font-weight: 800;
+            font-family: 'Outfit', sans-serif;
+            color: var(--accent-color);
+        }
+
+        .form-control-premium {
+            background-color: var(--input-bg);
+            border: 1px solid var(--border-color);
+            border-radius: 12px;
+            color: var(--text-color) !important;
+            padding: 0.75rem 1rem;
+            font-size: 0.95rem;
+            transition: all 0.2s ease;
+        }
+
+        .form-control-premium:focus {
+            background-color: var(--input-focus-bg) !important;
+            border-color: var(--accent-color);
+            box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.25);
+            outline: none;
+        }
+
+        /* Prevent Chrome Autofill background color issues */
+        .form-control-premium:-webkit-autofill,
+        .form-control-premium:-webkit-autofill:hover, 
+        .form-control-premium:-webkit-autofill:focus {
+            -webkit-text-fill-color: var(--text-color) !important;
+            -webkit-box-shadow: 0 0 0px 1000px var(--input-bg) inset !important;
+            transition: background-color 5000s ease-in-out 0s;
+        }
+
+        .btn-premium {
+            background: linear-gradient(135deg, #3b82f6 0%, #a855f7 100%);
+            border: none;
+            border-radius: 12px;
+            color: white;
+            font-weight: 600;
+            padding: 0.75rem 1.5rem;
+            transition: all 0.3s ease;
+            box-shadow: 0 4px 15px rgba(59, 130, 246, 0.25);
+        }
+
+        .btn-premium:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 6px 20px rgba(59, 130, 246, 0.35);
+            color: white;
+        }
+
+        .btn-outline-premium {
+            background: transparent;
+            border: 1px solid var(--border-color);
+            border-radius: 12px;
+            color: var(--text-color);
+            font-weight: 500;
+            padding: 0.75rem 1.5rem;
+            transition: all 0.2s ease;
+        }
+
+        .btn-outline-premium:hover {
+            background: rgba(255, 255, 255, 0.05);
+            color: white;
+            border-color: rgba(255,255,255,0.2);
+        }
+
+        .table-custom {
+            border-radius: 16px;
+            overflow: hidden;
+            border: 1px solid var(--border-color);
+        }
+
+        .table-custom th {
+            background-color: rgba(255, 255, 255, 0.03) !important;
+            color: var(--text-color) !important;
+            font-weight: 600;
+            border-bottom: 1px solid var(--border-color) !important;
+            padding: 1rem;
+        }
+
+        .table-custom td {
+            background-color: transparent !important;
+            color: var(--text-muted) !important;
+            border-bottom: 1px solid var(--border-color) !important;
+            padding: 1rem;
+            vertical-align: middle;
+        }
+
+        .table-custom tr:last-child td {
+            border-bottom: none !important;
+        }
+
+        .alert-error {
+            background: rgba(239, 68, 68, 0.15);
+            border: 1px solid rgba(239, 68, 68, 0.3);
+            color: #fca5a5;
+            border-radius: 12px;
+            padding: 0.75rem 1rem;
+        }
+
+        .alert-success {
+            background: rgba(16, 185, 129, 0.15);
+            border: 1px solid rgba(16, 185, 129, 0.3);
+            color: #a7f3d0;
+            border-radius: 12px;
+            padding: 0.75rem 1rem;
+        }
+
+        .text-accent-purple {
+            color: var(--accent-purple);
+        }
+    </style>
+</head>
+<body>
+
+    <div class="container">
+        
+        <% if (!authenticated) { %>
+            <!-- ADMIN LOGIN CARD -->
+            <div class="row justify-content-center align-items-center" style="min-height: 70vh;">
+                <div class="col-md-5">
+                    <div class="glass-card text-center">
+                        <div class="mb-4">
+                            <i class="fas fa-user-shield fa-3x text-accent-color mb-2"></i>
+                            <h2 class="title-brand">Quản Trị Kim Tool</h2>
+                            <p class="text-muted small">Vui lòng nhập mật khẩu Master Admin để tiếp tục.</p>
+                        </div>
+
+                        <% if (error) { %>
+                            <div class="alert-error text-start mb-3">
+                                <i class="fas fa-exclamation-circle me-2"></i> <%= error %>
+                            </div>
+                        <% } %>
+
+                        <form action="/admin/login" method="post">
+                            <div class="mb-4 text-start">
+                                <label class="form-label text-muted small">Mật khẩu admin</label>
+                                <input type="password" name="password" class="form-control form-control-premium" placeholder="Nhập mật khẩu truy cập hệ thống" required autofocus>
+                            </div>
+
+                            <button type="submit" class="btn btn-premium w-100 py-2.5">
+                                <i class="fas fa-sign-in-alt me-2"></i> Đăng nhập hệ thống
+                            </button>
+                        </form>
+                        
+                        <div class="mt-4">
+                            <a href="/" class="text-muted small text-decoration-none"><i class="fas fa-arrow-left me-1"></i> Quay lại trang đăng ký</a>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+        <% } else { %>
+            <!-- ADMIN AUTHORIZED DASHBOARD -->
+            <div class="row mb-4 align-items-center">
+                <div class="col-md-8">
+                    <h1 class="title-brand mb-1">Bảng Điều Khiển Admin</h1>
+                    <p class="text-muted mb-0">Hệ thống quản lý không gian URL và cấp phát liên kết cho người dùng.</p>
+                </div>
+                <div class="col-md-4 text-md-end mt-3 mt-md-0">
+                    <form action="/admin/logout" method="post" class="d-inline">
+                        <button type="submit" class="btn btn-outline-premium btn-sm">
+                            <i class="fas fa-sign-out-alt me-1"></i> Đăng xuất Admin
+                        </button>
+                    </form>
+                    <a href="/" class="btn btn-outline-premium btn-sm ms-2">
+                        <i class="fas fa-home me-1"></i> Trang đăng ký
+                    </a>
+                </div>
+            </div>
+
+            <!-- ALERTS -->
+            <% if (error) { %>
+                <div class="alert-error mb-4">
+                    <i class="fas fa-exclamation-circle me-2"></i> <%= error %>
+                </div>
+            <% } %>
+
+            <% if (success) { %>
+                <div class="alert-success mb-4">
+                    <i class="fas fa-check-circle me-2"></i> <%= success %>
+                </div>
+            <% } %>
+
+            <!-- STATISTICS CARDS -->
+            <div class="row mb-4">
+                <div class="col-md-4 mb-3">
+                    <div class="stat-card">
+                        <div class="text-muted small mb-1">Tổng Số Link Đã Cấp</div>
+                        <div class="stat-number"><%= users.length %></div>
+                    </div>
+                </div>
+                <div class="col-md-4 mb-3">
+                    <div class="stat-card">
+                        <div class="text-muted small mb-1">Trạng Thái Máy Chủ</div>
+                        <div class="stat-number text-success" style="font-size: 1.8rem; padding: 0.3rem 0;"><i class="fas fa-circle-check me-2"></i>Hoạt Động</div>
+                    </div>
+                </div>
+                <div class="col-md-4 mb-3">
+                    <div class="stat-card">
+                        <div class="text-muted small mb-1">Cơ Sở Dữ Liệu</div>
+                        <div class="stat-number text-accent-purple" style="font-size: 1.8rem; padding: 0.3rem 0;"><i class="fas fa-database me-2"></i>File JSON</div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="row">
+                <!-- FORM ADD MANUALLY -->
+                <div class="col-lg-4 mb-4">
+                    <div class="glass-card">
+                        <h4 class="mb-3 fw-bold" style="font-family: 'Outfit', sans-serif;"><i class="fas fa-plus-circle me-2 text-accent-color"></i>Nhập Tay Cấp Link</h4>
+                        <p class="text-muted small mb-4">Tạo nhanh một đường dẫn riêng kèm mật khẩu để giao trực tiếp cho khách hàng.</p>
+                        
+                        <form action="/admin/add-user" method="post" autocomplete="off">
+                            <div class="mb-3">
+                                <label class="form-label text-muted small">Tên đường dẫn (slug)</label>
+                                <input type="text" id="adminSlugInput" name="username" class="form-control form-control-premium" placeholder="Ví dụ: khachhang1, codelove" required>
+                            </div>
+                            
+                            <div class="mb-3" id="adminPreviewBox" style="display: none;">
+                                <div class="p-2 rounded bg-opacity-10 bg-white border border-secondary" style="font-size: 0.75rem; font-family: monospace;">
+                                    Link: <span id="adminPreviewUrlText" class="text-info">http://localhost:3000/slug</span>
+                                </div>
+                            </div>
+
+                            <div class="mb-4">
+                                <label class="form-label text-muted small">Mật khẩu truy cập của họ</label>
+                                <input type="text" name="password" class="form-control form-control-premium" placeholder="Nhập mật khẩu truy cập" required>
+                            </div>
+
+                            <button type="submit" class="btn btn-premium w-100 py-2">
+                                <i class="fas fa-plus me-1"></i> Tạo và cấp Link
+                            </button>
+                        </form>
+                    </div>
+                </div>
+
+                <!-- USERS TABLE -->
+                <div class="col-lg-8 mb-4">
+                    <div class="glass-card">
+                        <h4 class="mb-4 fw-bold" style="font-family: 'Outfit', sans-serif;"><i class="fas fa-list me-2 text-accent-purple"></i>Danh Sách Link Hoạt Động</h4>
+                        
+                        <% if (users.length === 0) { %>
+                            <div class="text-center py-4 text-muted">
+                                <i class="fas fa-box-open fa-2x mb-2"></i><br>
+                                Chưa cấp phát đường link nào.
+                            </div>
+                        <% } else { %>
+                            <div class="table-responsive">
+                                <table class="table table-custom">
+                                    <thead>
+                                        <tr>
+                                            <th>Đường dẫn riêng</th>
+                                            <th>Mật khẩu truy cập</th>
+                                            <th>Ngày tạo</th>
+                                            <th class="text-center">Hành động</th>
+                                        </tr>
+                                    </thead>
+                                    <tbody>
+                                        <% users.forEach(function(u) { %>
+                                            <tr>
+                                                <td class="fw-bold">
+                                                    <a href="/<%= u.slug %>" target="_blank" class="text-decoration-none text-info">
+                                                        /<%= u.slug %> <i class="fas fa-external-link-alt ms-1" style="font-size: 0.7rem;"></i>
+                                                    </a>
+                                                </td>
+                                                <td>
+                                                    <code class="user-password-code"><%= u.password %></code>
+                                                </td>
+                                                <td>
+                                                    <span style="font-size: 0.8rem;"><%= new Date(u.createdAt).toLocaleDateString('vi-VN') %></span>
+                                                </td>
+                                                <td class="text-center">
+                                                    <form action="/admin/delete-user" method="post" onsubmit="return confirm('Bạn có chắc chắn muốn XÓA đường dẫn này? Hành động này sẽ xóa toàn bộ dữ liệu cấu hình và tài khoản của link này và không thể phục hồi!');" style="display:inline;">
+                                                        <input type="hidden" name="slug" value="<%= u.slug %>">
+                                                        <button type="submit" class="btn btn-sm btn-outline-danger" style="border-radius: 8px; padding: 4px 8px; font-size: 0.8rem;">
+                                                            <i class="fas fa-trash-alt me-1"></i>Xóa
+                                                        </button>
+                                                    </form>
+                                                </td>
+                                            </tr>
+                                        <% }) %>
+                                    </tbody>
+                                </table>
+                            </div>
+                        <% } %>
+                    </div>
+                </div>
+            </div>
+        <% } %>
+    </div>
+
+    <!-- Script for Live Link Preview in Admin -->
+    <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            var input = document.getElementById('adminSlugInput');
+            var previewBox = document.getElementById('adminPreviewBox');
+            var previewText = document.getElementById('adminPreviewUrlText');
+            
+            if (input) {
+                var baseUrl = window.location.protocol + '//' + window.location.host + '/';
+                input.addEventListener('input', function() {
+                    var val = this.value.toLowerCase().trim().replace(/[^a-z0-9_-]/g, '');
+                    this.value = val;
+                    if (val.length > 0) {
+                        previewBox.style.display = 'block';
+                        previewText.textContent = baseUrl + val;
+                    } else {
+                        previewBox.style.display = 'none';
+                    }
+                });
+            }
+        });
+    </script>
+</body>
+</html>

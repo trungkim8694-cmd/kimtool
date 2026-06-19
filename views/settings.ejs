@@ -1,0 +1,686 @@
+<%- include('partials/header', { title: 'Cài đặt Hệ thống', activePage: 'settings' }) %>
+
+<div class="mb-3">
+    <a href="/<%= slug %>" class="btn btn-secondary">
+        <i class="fas fa-arrow-left"></i> Quay lại Trang chủ
+    </a>
+</div>
+            <!-- Success Alert -->
+            <% if (successMsg) { %>
+                <div class="alert-custom alert-success-custom mb-3">
+                    <i class="fas fa-check-circle"></i> <%= successMsg %>
+                </div>
+            <% } %>
+
+            <!-- Error Alert -->
+            <% if (typeof errorMsg !== 'undefined' && errorMsg) { %>
+                <div class="alert-custom alert-danger-custom mb-3">
+                    <i class="fas fa-exclamation-circle"></i> <%= errorMsg %>
+                </div>
+            <% } %>
+
+            <!-- Các nút thao tác chính -->
+            <div class="card mb-3">
+                <div class="card-header">
+                    <i class="fas fa-tools"></i> Thao tác nhanh
+                </div>
+                <div class="card-body">
+                    <div class="row">
+                    <div class="col-6 col-sm-3 mb-3">
+                        <a href="/<%= slug %>/Video/AddVideo" class="settings-action-btn">
+                            <i class="fas fa-video action-btn-icon"></i> Video Custom
+                        </a>
+                    </div>
+                    <div class="col-6 col-sm-3 mb-3">
+                        <a href="/<%= slug %>/Link/AddLink" class="settings-action-btn">
+                            <i class="fas fa-link action-btn-icon"></i> Link Custom
+                        </a>
+                    </div>
+                    <div class="col-6 col-sm-3 mb-3">
+                        <a href="/<%= slug %>/Account/AddAccount" class="settings-action-btn">
+                            <i class="fas fa-user-plus action-btn-icon"></i> Thêm Tài Khoản
+                        </a>
+                    </div>
+                    <div class="col-6 col-sm-3 mb-3">
+                        <a href="/<%= slug %>/Kichdiem" class="settings-action-btn">
+                            <i class="fas fa-user-check action-btn-icon"></i> Kích Điểm
+                        </a>
+                    </div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="settings-container">
+            <form method="post" action="/<%= slug %>/Settings/Save" autocomplete="off">
+            <!-- Cài đặt đọc Mail -->
+            <div class="card mb-3">
+                <div class="card-header">
+                    <i class="fas fa-envelope-open-text"></i> Cài đặt Đọc Mail
+                </div>
+                <div class="card-body">
+                        <div class="mb-3">
+                            <label class="form-label"><i class="fas fa-cog"></i> Phương thức đọc mail</label>
+                            
+                            <div class="form-check">
+                                <input class="form-check-input" type="radio" name="MailReadMode" id="modeOAuth2" value="OAuth2"
+                                    <%= settings.mailReadMode === 'OAuth2' ? 'checked' : '' %>>
+                                <label class="form-check-label" for="modeOAuth2">
+                                    OAuth2
+                                </label>
+                            </div>
+                            
+                            <div class="form-check">
+                                <input class="form-check-input" type="radio" name="MailReadMode" id="modeOAuth2Server2" value="OAuth2Server2"
+                                    <%= settings.mailReadMode === 'OAuth2Server2' ? 'checked' : '' %>>
+                                <label class="form-check-label" for="modeOAuth2Server2">
+                                    Đọc mail qua Oauth2 Server 2
+                                </label>
+                            </div>
+                            
+                            <div class="form-check">
+                                <input class="form-check-input" type="radio" name="MailReadMode" id="modeGraph" value="Graph"
+                                    <%= settings.mailReadMode === 'Graph' ? 'checked' : '' %>>
+                                <label class="form-check-label" for="modeGraph">
+                                    Graph API
+                                </label>
+                            </div>
+                            
+                            <div class="form-check">
+                                <input class="form-check-input" type="radio" name="MailReadMode" id="modeMailTM" value="MailTM"
+                                    <%= settings.mailReadMode === 'MailTM' ? 'checked' : '' %>>
+                                <label class="form-check-label" for="modeMailTM">
+                                    Đọc mail qua Mail TM (Tự động hóa)
+                                </label>
+                            </div>
+                            
+                            <div class="form-check">
+                                <input class="form-check-input" type="radio" name="MailReadMode" id="modeFakeEmail" value="FakeEmail"
+                                    <%= settings.mailReadMode === 'FakeEmail' ? 'checked' : '' %>>
+                                <label class="form-check-label" for="modeFakeEmail">
+                                    Đọc mail qua FakeEmail
+                                </label>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Cài đặt bảo vệ bằng mật khẩu -->
+                <div class="card mb-3" id="password-protection-card">
+                    <div class="card-header">
+                        <i class="fas fa-lock"></i> Bảo vệ bằng mật khẩu
+                    </div>
+                    <div class="card-body">
+                        <div class="setting-item">
+                            <div class="setting-label">
+                                <i class="fas fa-shield-alt"></i> Bật bảo vệ bằng mật khẩu
+                            </div>
+                            <div class="setting-control">
+                                <label class="switch">
+                                    <!-- Use a hidden input to submit false if unchecked -->
+                                    <input type="hidden" name="EnablePasswordProtection" value="false">
+                                    <input type="checkbox" name="EnablePasswordProtection" value="true" <%= settings.enablePasswordProtection ? 'checked' : '' %>>
+                                    <span class="slider round"></span>
+                                </label>
+                            </div>
+                        </div>
+
+                        <div class="mb-3 mt-3">
+                            <label class="form-label">Mật khẩu mới</label>
+                            <div class="input-group">
+                                <span class="input-group-text"><i class="fas fa-key"></i></span>
+                                <input type="password" id="passwordInput" name="Password" class="form-control" placeholder="Nhập mật khẩu mới (để trống để giữ nguyên)">
+                                <button type="button" class="btn btn-outline-secondary" id="togglePassword">
+                                    <i class="fas fa-eye"></i>
+                                </button>
+                            </div>
+                            <div class="form-text text-muted mt-1">
+                                <i class="fas fa-info-circle"></i> Mật khẩu hiện tại: <strong><%= settings.password %></strong>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Cài đặt iCloud -->
+                <div class="card mb-3">
+                    <div class="card-header">
+                        <i class="fas fa-cloud"></i> Cài đặt iCloud
+                    </div>
+                    <div class="card-body">
+                        <div class="mb-3">
+                            <label class="form-label">Tài khoản iCloud</label>
+                            <div class="input-group">
+                                <span class="input-group-text"><i class="fas fa-user"></i></span>
+                                <input type="text" name="account" class="form-control" placeholder="Nhập tài khoản iCloud (tùy chọn)" value="<%= settings.icloudAccount || '' %>">
+                            </div>
+                        </div>
+                        <div class="mb-3">
+                            <label class="form-label">Mật khẩu iCloud</label>
+                            <div class="input-group">
+                                <span class="input-group-text"><i class="fas fa-lock"></i></span>
+                                <input type="password" id="icloudPasswordInput" name="password" class="form-control" placeholder="Nhập mật khẩu iCloud (tùy chọn)" value="<%= settings.icloudPassword || '' %>">
+                            </div>
+                            <div class="form-check mt-2">
+                                <input class="form-check-input" type="checkbox" id="showIcloudPassword">
+                                <label class="form-check-label" for="showIcloudPassword">
+                                    Hiển thị mật khẩu
+                                </label>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Cài đặt Email -->
+                <div class="card mb-3">
+                    <div class="card-header">
+                        <i class="fas fa-envelope"></i> Cài đặt Email
+                    </div>
+                    <div class="card-body">
+                        <div class="mb-3">
+                            <label class="form-label">Địa chỉ Email hiển thị ở trang chủ</label>
+                            <div class="input-group">
+                                <span class="input-group-text"><i class="fas fa-envelope"></i></span>
+                                <input type="text" name="email" class="form-control" placeholder="Nhập địa chỉ Email (tùy chọn)" value="<%= settings.customEmail || '' %>" maxlength="49">
+                            </div>
+                            <div class="form-text text-muted mt-1">
+                                <i class="fas fa-info-circle"></i> Nhập bất kỳ thông tin nào, giới hạn tối đa 49 ký tự.
+                            </div>
+                        </div>
+                        <div class="mb-3">
+                            <label class="form-label">Mật khẩu Email</label>
+                            <div class="input-group">
+                                <span class="input-group-text"><i class="fas fa-key"></i></span>
+                                <input type="text" name="emailPassword" class="form-control" placeholder="Nhập mật khẩu Email (tùy chọn)" value="<%= settings.customEmailPassword || '' %>">
+                            </div>
+                            <div class="form-text text-muted mt-1">
+                                <i class="fas fa-info-circle"></i> Nhập mật khẩu Email, cho phép hiển thị text đầy đủ.
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Cài đặt hiển thị -->
+                <div class="card mb-3">
+                    <div class="card-header">
+                        <i class="fas fa-eye"></i> Cài đặt Hiển thị
+                    </div>
+                    <div class="card-body">
+                        <p class="text-muted mb-3 small">Bật/tắt các thành phần hiển thị trên trang chủ</p>
+                        <div class="settings-group">
+                            <div class="settings-header">Nội dung</div>
+
+                            <div class="setting-item">
+                                <div class="setting-label">
+                                    <i class="fas fa-film"></i> Danh sách Video
+                                </div>
+                                <div class="setting-control">
+                                    <label class="switch">
+                                        <input type="hidden" name="ShowVideoList" value="false">
+                                        <input type="checkbox" name="ShowVideoList" value="true" <%= settings.displaySettings.ShowVideoList ? 'checked' : '' %>>
+                                        <span class="slider round"></span>
+                                    </label>
+                                </div>
+                            </div>
+                            <!-- Nút bấm sổ xuống để cấu hình chi tiết các Video -->
+                            <div class="setting-item flex-column align-items-stretch">
+                                <div class="d-flex justify-content-between align-items-center">
+                                    <div class="setting-label text-muted small">
+                                        <i class="fas fa-cog text-accent"></i> Chi tiết các Video (Bật/Tắt, Tiêu đề, Link)
+                                    </div>
+                                    <button class="btn btn-sm btn-outline-secondary" type="button" data-bs-toggle="collapse" data-bs-target="#videoDetailsCollapse" aria-expanded="false" aria-controls="videoDetailsCollapse" style="padding: 4px 12px; font-size: 0.75rem;">
+                                        <i class="fas fa-chevron-down me-1"></i> Bấm để sửa cấu hình Video
+                                    </button>
+                                </div>
+                                
+                                <div class="collapse mt-2" id="videoDetailsCollapse">
+                            
+                            <!-- Video Custom (Kho) -->
+                            <div class="setting-item sub-setting flex-column align-items-stretch p-3 mb-2 rounded" style="background: rgba(255, 255, 255, 0.01); border: 1px solid var(--border-color);">
+                                <div class="d-flex justify-content-between align-items-center mb-2">
+                                    <div class="setting-label fw-bold p-0 m-0">
+                                        <i class="fas fa-folder-open"></i> Video Custom (Kho)
+                                    </div>
+                                    <div class="setting-control">
+                                        <label class="switch">
+                                            <input type="hidden" name="ShowVideoCustom" value="false">
+                                            <input type="checkbox" name="ShowVideoCustom" value="true" <%= settings.displaySettings.ShowVideoCustom ? 'checked' : '' %>>
+                                            <span class="slider round"></span>
+                                        </label>
+                                    </div>
+                                </div>
+                                <div class="row g-2">
+                                    <div class="col-md-6">
+                                        <label class="form-label small mb-1">Tiêu đề nút bấm</label>
+                                        <input type="text" name="VideoCustomTitle" class="form-control form-control-sm" value="<%= settings.videoConfigs.VideoCustom.title %>" required>
+                                    </div>
+                                    <div class="col-md-6">
+                                        <label class="form-label small mb-1">Đường dẫn liên kết (Link)</label>
+                                        <input type="text" name="VideoCustomLink" class="form-control form-control-sm" value="<%= settings.videoConfigs.VideoCustom.link %>" required>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <!-- Video Thường 60p -->
+                            <div class="setting-item sub-setting flex-column align-items-stretch p-3 mb-2 rounded" style="background: rgba(255, 255, 255, 0.01); border: 1px solid var(--border-color);">
+                                <div class="d-flex justify-content-between align-items-center mb-2">
+                                    <div class="setting-label fw-bold p-0 m-0">
+                                        <i class="fas fa-play-circle"></i> Video Thường 60p
+                                    </div>
+                                    <div class="setting-control">
+                                        <label class="switch">
+                                            <input type="hidden" name="ShowRegularVideo60" value="false">
+                                            <input type="checkbox" name="ShowRegularVideo60" value="true" <%= settings.displaySettings.ShowRegularVideo60 ? 'checked' : '' %>>
+                                            <span class="slider round"></span>
+                                        </label>
+                                    </div>
+                                </div>
+                                <div class="row g-2">
+                                    <div class="col-md-6">
+                                        <label class="form-label small mb-1">Tiêu đề nút bấm</label>
+                                        <input type="text" name="RegularVideo60Title" class="form-control form-control-sm" value="<%= settings.videoConfigs.RegularVideo60.title %>" required>
+                                    </div>
+                                    <div class="col-md-6">
+                                        <label class="form-label small mb-1">Đường dẫn liên kết (Link)</label>
+                                        <input type="text" name="RegularVideo60Link" class="form-control form-control-sm" value="<%= settings.videoConfigs.RegularVideo60.link %>" required>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <!-- Video Thường 180p -->
+                            <div class="setting-item sub-setting flex-column align-items-stretch p-3 mb-2 rounded" style="background: rgba(255, 255, 255, 0.01); border: 1px solid var(--border-color);">
+                                <div class="d-flex justify-content-between align-items-center mb-2">
+                                    <div class="setting-label fw-bold p-0 m-0">
+                                        <i class="fas fa-play-circle"></i> Video Thường 180p
+                                    </div>
+                                    <div class="setting-control">
+                                        <label class="switch">
+                                            <input type="hidden" name="ShowRegularVideo180" value="false">
+                                            <input type="checkbox" name="ShowRegularVideo180" value="true" <%= settings.displaySettings.ShowRegularVideo180 ? 'checked' : '' %>>
+                                            <span class="slider round"></span>
+                                        </label>
+                                    </div>
+                                </div>
+                                <div class="row g-2">
+                                    <div class="col-md-6">
+                                        <label class="form-label small mb-1">Tiêu đề nút bấm</label>
+                                        <input type="text" name="RegularVideo180Title" class="form-control form-control-sm" value="<%= settings.videoConfigs.RegularVideo180.title %>" required>
+                                    </div>
+                                    <div class="col-md-6">
+                                        <label class="form-label small mb-1">Đường dẫn liên kết (Link)</label>
+                                        <input type="text" name="RegularVideo180Link" class="form-control form-control-sm" value="<%= settings.videoConfigs.RegularVideo180.link %>" required>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <!-- Video Lite 10p -->
+                            <div class="setting-item sub-setting flex-column align-items-stretch p-3 mb-2 rounded" style="background: rgba(255, 255, 255, 0.01); border: 1px solid var(--border-color);">
+                                <div class="d-flex justify-content-between align-items-center mb-2">
+                                    <div class="setting-label fw-bold p-0 m-0">
+                                        <i class="fas fa-play-circle"></i> Video Lite 10p
+                                    </div>
+                                    <div class="setting-control">
+                                        <label class="switch">
+                                            <input type="hidden" name="ShowLiteVideo10" value="false">
+                                            <input type="checkbox" name="ShowLiteVideo10" value="true" <%= settings.displaySettings.ShowLiteVideo10 ? 'checked' : '' %>>
+                                            <span class="slider round"></span>
+                                        </label>
+                                    </div>
+                                </div>
+                                <div class="row g-2">
+                                    <div class="col-md-6">
+                                        <label class="form-label small mb-1">Tiêu đề nút bấm</label>
+                                        <input type="text" name="LiteVideo10Title" class="form-control form-control-sm" value="<%= settings.videoConfigs.LiteVideo10.title %>" required>
+                                    </div>
+                                    <div class="col-md-6">
+                                        <label class="form-label small mb-1">Đường dẫn liên kết (Link)</label>
+                                        <input type="text" name="LiteVideo10Link" class="form-control form-control-sm" value="<%= settings.videoConfigs.LiteVideo10.link %>" required>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <!-- Video Lite 60p -->
+                            <div class="setting-item sub-setting flex-column align-items-stretch p-3 mb-2 rounded" style="background: rgba(255, 255, 255, 0.01); border: 1px solid var(--border-color);">
+                                <div class="d-flex justify-content-between align-items-center mb-2">
+                                    <div class="setting-label fw-bold p-0 m-0">
+                                        <i class="fas fa-play-circle"></i> Video Lite 60p
+                                    </div>
+                                    <div class="setting-control">
+                                        <label class="switch">
+                                            <input type="hidden" name="ShowLiteVideo60" value="false">
+                                            <input type="checkbox" name="ShowLiteVideo60" value="true" <%= settings.displaySettings.ShowLiteVideo60 ? 'checked' : '' %>>
+                                            <span class="slider round"></span>
+                                        </label>
+                                    </div>
+                                </div>
+                                <div class="row g-2">
+                                    <div class="col-md-6">
+                                        <label class="form-label small mb-1">Tiêu đề nút bấm</label>
+                                        <input type="text" name="LiteVideo60Title" class="form-control form-control-sm" value="<%= settings.videoConfigs.LiteVideo60.title %>" required>
+                                    </div>
+                                    <div class="col-md-6">
+                                        <label class="form-label small mb-1">Đường dẫn liên kết (Link)</label>
+                                        <input type="text" name="LiteVideo60Link" class="form-control form-control-sm" value="<%= settings.videoConfigs.LiteVideo60.link %>" required>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <!-- Video Lite 180p -->
+                            <div class="setting-item sub-setting flex-column align-items-stretch p-3 mb-2 rounded" style="background: rgba(255, 255, 255, 0.01); border: 1px solid var(--border-color);">
+                                <div class="d-flex justify-content-between align-items-center mb-2">
+                                    <div class="setting-label fw-bold p-0 m-0">
+                                        <i class="fas fa-play-circle"></i> Video Lite 180p
+                                    </div>
+                                    <div class="setting-control">
+                                        <label class="switch">
+                                            <input type="hidden" name="ShowLiteVideo180" value="false">
+                                            <input type="checkbox" name="ShowLiteVideo180" value="true" <%= settings.displaySettings.ShowLiteVideo180 ? 'checked' : '' %>>
+                                            <span class="slider round"></span>
+                                        </label>
+                                    </div>
+                                </div>
+                                <div class="row g-2">
+                                    <div class="col-md-6">
+                                        <label class="form-label small mb-1">Tiêu đề nút bấm</label>
+                                        <input type="text" name="LiteVideo180Title" class="form-control form-control-sm" value="<%= settings.videoConfigs.LiteVideo180.title %>" required>
+                                    </div>
+                                    <div class="col-md-6">
+                                        <label class="form-label small mb-1">Đường dẫn liên kết (Link)</label>
+                                        <input type="text" name="LiteVideo180Link" class="form-control form-control-sm" value="<%= settings.videoConfigs.LiteVideo180.link %>" required>
+                                    </div>
+                                </div>
+                            </div>
+                                </div>
+                            </div>
+
+                            <div class="setting-item">
+                                <div class="setting-label">
+                                    <i class="fas fa-user"></i> Thông tin Tài khoản
+                                </div>
+                                <div class="setting-control">
+                                    <label class="switch">
+                                        <input type="hidden" name="ShowAccountInfo" value="false">
+                                        <input type="checkbox" name="ShowAccountInfo" value="true" <%= settings.displaySettings.ShowAccountInfo ? 'checked' : '' %>>
+                                        <span class="slider round"></span>
+                                    </label>
+                                </div>
+                            </div>
+
+                            <div class="setting-item">
+                                <div class="setting-label">
+                                    <i class="fas fa-envelope"></i> Email
+                                </div>
+                                <div class="setting-control">
+                                    <label class="switch">
+                                        <input type="hidden" name="ShowRandomEmail" value="false">
+                                        <input type="checkbox" name="ShowRandomEmail" value="true" <%= settings.displaySettings.ShowRandomEmail ? 'checked' : '' %>>
+                                        <span class="slider round"></span>
+                                    </label>
+                                </div>
+                            </div>
+
+                            <div class="setting-item">
+                                <div class="setting-label">
+                                    <i class="fas fa-cloud"></i> Thông tin iCloud
+                                </div>
+                                <div class="setting-control">
+                                    <label class="switch">
+                                        <input type="hidden" name="ShowICloudInfo" value="false">
+                                        <input type="checkbox" name="ShowICloudInfo" value="true" <%= settings.displaySettings.ShowICloudInfo ? 'checked' : '' %>>
+                                        <span class="slider round"></span>
+                                    </label>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Cài đặt thứ tự hiển thị -->
+                        <div class="settings-group mt-3">
+                            <div class="settings-header">Thứ tự hiển thị</div>
+
+                            <div id="sortable-sections" class="sortable-list">
+                                <% settings.displayOrder.forEach(function(section, index) { %>
+                                    <% if (section === 'VideoList') { %>
+                                        <div class="sortable-item" data-section="VideoList">
+                                            <input type="hidden" name="VideoListOrder" value="<%= index + 1 %>">
+                                            <div class="sortable-handle"><i class="fas fa-grip-lines"></i></div>
+                                            <div class="sortable-content">
+                                                <i class="fas fa-film"></i> Danh sách Video
+                                            </div>
+                                        </div>
+                                    <% } else if (section === 'AccountInfo') { %>
+                                        <div class="sortable-item" data-section="AccountInfo">
+                                            <input type="hidden" name="AccountInfoOrder" value="<%= index + 1 %>">
+                                            <div class="sortable-handle"><i class="fas fa-grip-lines"></i></div>
+                                            <div class="sortable-content">
+                                                <i class="fas fa-user"></i> Thông tin Tài khoản
+                                            </div>
+                                        </div>
+                                    <% } else if (section === 'RandomEmail') { %>
+                                        <div class="sortable-item" data-section="RandomEmail">
+                                            <input type="hidden" name="RandomEmailOrder" value="<%= index + 1 %>">
+                                            <div class="sortable-handle"><i class="fas fa-grip-lines"></i></div>
+                                            <div class="sortable-content">
+                                                <i class="fas fa-envelope"></i> Email
+                                            </div>
+                                        </div>
+                                    <% } else if (section === 'ICloudInfo') { %>
+                                        <div class="sortable-item" data-section="ICloudInfo">
+                                            <input type="hidden" name="ICloudInfoOrder" value="<%= index + 1 %>">
+                                            <div class="sortable-handle"><i class="fas fa-grip-lines"></i></div>
+                                            <div class="sortable-content">
+                                                <i class="fas fa-cloud"></i> Thông tin iCloud
+                                            </div>
+                                        </div>
+                                    <% } %>
+                                <% }) %>
+                            </div>
+
+                            <div class="mt-2 text-muted small p-2">
+                                <i class="fas fa-info-circle"></i> Kéo và thả để sắp xếp thứ tự hiển thị trên trang chủ
+                            </div>
+                        </div>
+
+                </div>
+            </div>
+            
+            <!-- Sticky Bottom Save Bar -->
+            <div class="sticky-save-bar">
+                <div class="sticky-save-bar-content">
+                    <span class="sticky-save-bar-text">
+                        <i class="fas fa-info-circle"></i> Thay đổi sẽ được áp dụng cho toàn bộ hệ thống cài đặt.
+                    </span>
+                    <div class="sticky-save-bar-actions">
+                        <button type="submit" class="btn btn-accent px-4 py-2">
+                            <i class="fas fa-save"></i> Lưu Tất Cả Cài Đặt
+                        </button>
+                    </div>
+                </div>
+            </div>
+            
+            </form>
+            </div> <!-- End settings-container -->
+
+
+    <script>
+        (function() {
+            function initPage() {
+                // Xử lý hiển thị/ẩn mật khẩu iCloud
+                var showIcloudPw = document.getElementById("showIcloudPassword");
+                if (showIcloudPw) {
+                    showIcloudPw.addEventListener("change", function() {
+                        var passwordInput = document.getElementById("icloudPasswordInput");
+                        if (this.checked) {
+                            passwordInput.type = "text";
+                        } else {
+                            passwordInput.type = "password";
+                        }
+                    });
+                }
+
+                // Xử lý hiển thị/ẩn mật khẩu bảo vệ
+                var togglePw = document.getElementById("togglePassword");
+                if (togglePw) {
+                    togglePw.addEventListener("click", function() {
+                        var passwordInput = document.getElementById("passwordInput");
+                        if (passwordInput.type === "password") {
+                            passwordInput.type = "text";
+                            this.innerHTML = '<i class="fas fa-eye-slash"></i>';
+                        } else {
+                            passwordInput.type = "password";
+                            this.innerHTML = '<i class="fas fa-eye"></i>';
+                        }
+                    });
+                }
+
+                // Tự động ẩn thông báo sau 3 giây
+                setTimeout(function() {
+                    var alerts = document.querySelectorAll('.alert-custom');
+                    for (var i = 0; i < alerts.length; i++) {
+                        alerts[i].style.display = 'none';
+                    }
+                }, 3000);
+
+                // Khởi tạo kéo thả bằng Vanilla JS tự chế (Không phụ thuộc jQuery UI CDN, chạy 100% offline, mượt mà trên desktop & di động)
+                var list = document.getElementById('sortable-sections');
+                if (!list) return;
+
+                var dragEl = null;          // Phần tử đang được kéo (giữ lại trong DOM dưới dạng placeholder để tránh mất touch session)
+                var helperEl = null;        // Phần tử helper bay theo chuột/tay
+                var startY = 0;             // Tọa độ Y khi bắt đầu click/touch
+                var startX = 0;             // Tọa độ X khi bắt đầu click/touch
+                var initialTop = 0;         // Vị trí top ban đầu của phần tử kéo
+                var initialLeft = 0;        // Vị trí left ban đầu của phần tử kéo
+
+                var onDragStart = function(e) {
+                    // Cho phép kéo khi click vào bất kỳ vị trí nào của sortable-item
+                    var item = e.target.closest('.sortable-item');
+                    if (!item) return;
+
+                    // Bỏ qua nếu click vào nút bấm, thẻ input hoặc liên kết
+                    if (e.target.closest('input') || e.target.closest('button') || e.target.closest('a')) {
+                        return;
+                    }
+
+                    // Ngăn chặn hành vi cuộn trang và bôi đen chữ
+                    e.preventDefault();
+
+                    dragEl = item;
+                    var rect = dragEl.getBoundingClientRect();
+                    var touch = e.type === 'touchstart' ? e.touches[0] : e;
+                    
+                    startY = touch.clientY;
+                    startX = touch.clientX;
+                    initialTop = rect.top;
+                    initialLeft = rect.left;
+
+                    // Tạo helper bay theo con trỏ chuột/tay
+                    helperEl = dragEl.cloneNode(true);
+                    helperEl.classList.add('ui-sortable-helper');
+                    
+                    // Copy kích thước chính xác từ phần tử gốc
+                    var computedStyle = window.getComputedStyle(dragEl);
+                    helperEl.style.width = computedStyle.width;
+                    helperEl.style.height = computedStyle.height;
+                    helperEl.style.margin = '0';
+                    helperEl.style.boxSizing = 'border-box';
+                    helperEl.style.position = 'fixed';
+                    helperEl.style.left = initialLeft + 'px';
+                    helperEl.style.top = initialTop + 'px';
+                    helperEl.style.zIndex = '9999';
+                    helperEl.style.pointerEvents = 'none'; // Để elementFromPoint xuyên qua helper
+                    
+                    document.body.appendChild(helperEl);
+
+                    // Thêm class biến phần tử gốc thành placeholder dạng dashed
+                    dragEl.classList.add('dragging-original');
+
+                    if (e.type === 'touchstart') {
+                        document.addEventListener('touchmove', onDragMove, { passive: false });
+                        document.addEventListener('touchend', onDragEnd);
+                    } else {
+                        document.addEventListener('mousemove', onDragMove);
+                        document.addEventListener('mouseup', onDragEnd);
+                    }
+                };
+
+                var onDragMove = function(e) {
+                    if (!dragEl || !helperEl) return;
+                    e.preventDefault();
+
+                    var touch = e.type === 'touchmove' ? e.touches[0] : e;
+                    var deltaY = touch.clientY - startY;
+                    var deltaX = touch.clientX - startX;
+
+                    // Di chuyển helper theo tọa độ chuột/tay
+                    helperEl.style.top = (initialTop + deltaY) + 'px';
+                    helperEl.style.left = (initialLeft + deltaX) + 'px';
+
+                    // Tìm vị trí thích hợp nhất để chèn dựa vào tọa độ Y của chuột/tay so với các phần tử khác
+                    var afterElement = getDragAfterElement(list, touch.clientY);
+                    if (afterElement == null) {
+                        list.appendChild(dragEl);
+                    } else {
+                        list.insertBefore(dragEl, afterElement);
+                    }
+                };
+
+                function getDragAfterElement(container, y) {
+                    var itemsList = container.querySelectorAll('.sortable-item:not(.dragging-original)');
+                    var draggableElements = Array.prototype.slice.call(itemsList);
+                    return draggableElements.reduce(function(closest, child) {
+                        var box = child.getBoundingClientRect();
+                        var offset = y - box.top - box.height / 2;
+                        if (offset < 0 && offset > closest.offset) {
+                            return { offset: offset, element: child };
+                        } else {
+                            return closest;
+                        }
+                    }, { offset: Number.NEGATIVE_INFINITY }).element;
+                }
+
+                var onDragEnd = function(e) {
+                    if (!dragEl) return;
+
+                    document.removeEventListener('mousemove', onDragMove);
+                    document.removeEventListener('mouseup', onDragEnd);
+                    document.removeEventListener('touchmove', onDragMove);
+                    document.removeEventListener('touchend', onDragEnd);
+
+                    // Gỡ class placeholder để hiển thị lại phần tử gốc bình thường
+                    dragEl.classList.remove('dragging-original');
+
+                    // Xóa helper bay
+                    if (helperEl && helperEl.parentNode) {
+                        helperEl.parentNode.removeChild(helperEl);
+                    }
+
+                    dragEl = null;
+                    helperEl = null;
+
+                    // Cập nhật lại các input thứ tự
+                    updateOrderInputs();
+                };
+
+                function updateOrderInputs() {
+                    var items = list.querySelectorAll('.sortable-item');
+                    for (var index = 0; index < items.length; index++) {
+                        var item = items[index];
+                        var section = item.getAttribute('data-section');
+                        var input = item.querySelector('input[name="' + section + 'Order"]');
+                        if (input) {
+                            input.value = index + 1;
+                        }
+                    }
+                }
+
+                list.addEventListener('mousedown', onDragStart);
+                list.addEventListener('touchstart', onDragStart, { passive: false });
+            }
+
+            // Đảm bảo chạy đúng kể cả khi DOM đã sẵn sàng trước khi script thực thi
+            if (document.readyState === 'loading') {
+                document.addEventListener('DOMContentLoaded', initPage);
+            } else {
+                initPage();
+            }
+        })();
+    </script>
+<%- include('partials/footer') %>

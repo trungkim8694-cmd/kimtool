@@ -1,0 +1,65 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Đăng nhập bảo vệ</title>
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" />
+    <link rel="stylesheet" href="/css/modern-style.css" />
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" />
+</head>
+<body>
+    <div class="password-overlay">
+        <div class="password-container <%= error ? 'shake' : '' %>">
+            <div class="password-header">
+                <i class="fas fa-lock"></i> Hệ thống đã được khóa
+            </div>
+            <div class="password-body">
+                <p class="text-muted small">Vui lòng nhập mật khẩu bảo vệ để truy cập hệ thống.</p>
+                
+                <% if (error) { %>
+                    <div class="password-error mb-3">
+                        <i class="fas fa-exclamation-circle"></i> <%= error %>
+                    </div>
+                <% } %>
+                
+                <form method="post" action="/<%= slug %>/Login">
+                    <div class="mb-3">
+                        <label class="form-label">Mật khẩu</label>
+                        <div class="input-group">
+                            <span class="input-group-text"><i class="fas fa-key"></i></span>
+                            <input type="password" id="passwordInput" name="password" class="form-control" placeholder="Nhập mật khẩu truy cập" required autofocus>
+                            <button type="button" class="btn btn-outline-secondary" id="togglePassword">
+                                <i class="fas fa-eye"></i>
+                            </button>
+                        </div>
+                    </div>
+                    <button type="submit" class="btn btn-accent w-100">
+                        <i class="fas fa-sign-in-alt"></i> Xác nhận đăng nhập
+                    </button>
+                </form>
+            </div>
+        </div>
+    </div>
+
+    <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+    <script>
+        document.addEventListener("DOMContentLoaded", function() {
+            // Xử lý hiển thị/ẩn mật khẩu bảo vệ
+            var toggleBtn = document.getElementById("togglePassword");
+            if (toggleBtn) {
+                toggleBtn.addEventListener("click", function() {
+                    var passwordInput = document.getElementById("passwordInput");
+                    if (passwordInput.type === "password") {
+                        passwordInput.type = "text";
+                        this.innerHTML = '<i class="fas fa-eye-slash"></i>';
+                    } else {
+                        passwordInput.type = "password";
+                        this.innerHTML = '<i class="fas fa-eye"></i>';
+                    }
+                });
+            }
+        });
+    </script>
+</body>
+</html>

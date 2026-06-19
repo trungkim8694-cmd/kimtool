@@ -1,0 +1,199 @@
+<%- include('partials/header', { title: 'Quản lý Kích Điểm', activePage: 'settings' }) %>
+
+<div class="mb-3">
+    <a href="/<%= slug %>/Settings" class="btn btn-secondary">
+        <i class="fas fa-arrow-left"></i> Quay lại Cài đặt
+    </a>
+</div>
+
+<div class="card">
+    <div class="card-header d-flex justify-content-between align-items-center">
+        <div><i class="fas fa-user-check"></i> Quản lý Tài Khoản Kích Điểm</div>
+        <div id="saveStatus" style="font-size: 0.8rem; font-weight: 500;">
+            <i class="fas fa-check-circle text-success"></i> Đã lưu tự động
+        </div>
+    </div>
+    <div class="card-body">
+        <div class="mb-3">
+            <label class="form-label fw-bold">Danh sách tài khoản phụ dùng kích điểm (Mỗi dòng một tài khoản)</label>
+            <div class="text-muted small mb-2">Định dạng hỗ trợ: <code>Email|Mật khẩu Email|User đăng nhập|Mật khẩu đăng nhập</code></div>
+            <textarea class="form-control textarea-custom" name="accounts" rows="10" placeholder="olenkayeewn535@edudc.org|Nxnt3979|olenkayeewn535@gmail.com|Nxnt3979"><%= accountsText %></textarea>
+        </div>
+
+        <!-- Dynamic Preview Container -->
+        <div id="previewContainer" class="mb-0" style="display: none;">
+            <label class="form-label fw-bold"><i class="fas fa-list-ol"></i> Bảng Xem Trước & Sao Chép Nhanh Dòng tài khoản</label>
+            <div class="card border-0" style="background: rgba(255, 255, 255, 0.02); border: 1px solid var(--border-color) !important;">
+                <div class="card-body p-2" style="max-height: 350px; overflow-y: auto;" id="previewList">
+                    <!-- Preview rows dynamic generation -->
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+
+
+<!-- Real-time Live Preview Handler Script -->
+<script>
+    document.addEventListener("DOMContentLoaded", function() {
+        var textarea = document.querySelector('textarea[name="accounts"]');
+        var container = document.getElementById('previewContainer');
+        var listDiv = document.getElementById('previewList');
+        
+        if (textarea && container && listDiv) {
+            // Logic Debounce tự động lưu
+            var saveTimeout = null;
+            var triggerAutoSave = function() {
+                showSaveStatus('saving');
+                if (saveTimeout) {
+                    clearTimeout(saveTimeout);
+                }
+                saveTimeout = setTimeout(function() {
+                    performSave();
+                }, 800); // Tự động lưu sau 800ms không gõ
+            };
+            
+            var performSave = function() {
+                var params = new URLSearchParams();
+                params.append('accounts', textarea.value);
+                
+                fetch('/<%= slug %>/Kichdiem/SaveAccounts', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/x-www-form-urlencoded'
+                    },
+                    body: params
+                })
+                .then(function(res) {
+                    return res.json();
+                })
+                .then(function(json) {
+                    if (json && json.status) {
+                        showSaveStatus('saved');
+                    } else {
+                        showSaveStatus('error', json ? json.message : 'Lỗi không xác định');
+                    }
+                })
+                .catch(function(err) {
+                    showSaveStatus('error', err.message || 'Lỗi kết nối mạng');
+                });
+            };
+            
+            var showSaveStatus = function(status, message) {
+                var statusDiv = document.getElementById('saveStatus');
+                if (!statusDiv) return;
+                
+                if (status === 'saving') {
+                    statusDiv.innerHTML = '<i class="fas fa-spinner fa-spin text-info me-1"></i> <span class="text-info">Đang lưu tự động...</span>';
+                } else if (status === 'saved') {
+                    statusDiv.innerHTML = '<i class="fas fa-check-circle text-success me-1"></i> <span class="text-success">Đã lưu tự động</span>';
+                } else if (status === 'error') {
+                    statusDiv.innerHTML = '<i class="fas fa-exclamation-circle text-danger me-1"></i> <span class="text-danger">' + (message || 'Lỗi lưu dữ liệu') + '</span>';
+                }
+            };
+            
+            var updatePreview = function() {
+                var text = textarea.value;
+                var rawLines = text.split('\n');
+                var lines = [];
+                for (var i = 0; i < rawLines.length; i++) {
+                    var l = rawLines[i].trim();
+                    if (l.length > 0) {
+                        lines.push(l);
+                    }
+                }
+                
+                if (lines.length === 0) {
+                    container.style.display = 'none';
+                    return;
+                }
+                
+                container.style.display = 'block';
+                var html = '';
+                for (var index = 0; index < lines.length; index++) {
+                    var line = lines[index];
+                    html += '<div class="d-flex align-items-center justify-content-between p-2 mb-2 rounded" style="background: var(--input-bg); border: 1px solid var(--border-color);">' +
+                                '<div class="d-flex align-items-center flex-grow-1 overflow-hidden me-3 text-wrapper" style="cursor: pointer;" onclick="toggleStrikethrough(this)">' +
+                                    '<span class="badge bg-secondary text-dark me-2" style="font-size: 0.75rem; background-color: var(--accent-light) !important; color: var(--accent-color) !important;">' + (index + 1) + '</span>' +
+                                    '<span class="font-monospace text-truncate text-content" style="font-size: 0.8rem; color: var(--text-color); white-space: nowrap;">' + escapeHtml(line) + '</span>' +
+                                '</div>' +
+                                '<button type="button" class="btn btn-sm btn-secondary" style="padding: 4px 10px; font-size: 0.75rem;" data-text="' + escapeHtml(line) + '" onclick="copyDirectText(this)">' +
+                                    '<i class="fas fa-copy"></i><span class="d-none d-sm-inline ms-1">Sao chép</span>' +
+                                '</button>' +
+                            '</div>';
+                }
+                listDiv.innerHTML = html;
+            };
+            
+            textarea.addEventListener('input', function() {
+                updatePreview();
+                triggerAutoSave();
+            });
+            updatePreview(); // Run once initially for stored text
+        }
+    });
+
+    function escapeHtml(text) {
+        return text
+            .replace(/&/g, "&amp;")
+            .replace(/</g, "&lt;")
+            .replace(/>/g, "&gt;")
+            .replace(/"/g, "&quot;")
+            .replace(/'/g, "&#039;");
+    }
+
+    function toggleStrikethrough(wrapper) {
+        var textSpan = wrapper.querySelector('.text-content');
+        if (!textSpan) return;
+        
+        if (textSpan.style.textDecoration === 'line-through') {
+            textSpan.style.textDecoration = '';
+            textSpan.style.opacity = '1';
+        } else {
+            textSpan.style.textDecoration = 'line-through';
+            textSpan.style.opacity = '0.6';
+        }
+    }
+
+    function copyDirectText(btn) {
+        var text = btn.getAttribute('data-text');
+        var el = document.createElement('textarea');
+        el.value = text;
+        document.body.appendChild(el);
+        el.select();
+        document.execCommand('copy');
+        document.body.removeChild(el);
+        
+        var icon = btn.querySelector('i');
+        var textSpan = btn.querySelector('span');
+
+        if (textSpan) textSpan.textContent = 'Đã chép!';
+        if (icon) icon.className = 'fas fa-check';
+        
+        btn.style.backgroundColor = 'var(--success-color)';
+        btn.style.color = '#ffffff';
+        
+        // Gạch ngang text dòng tương ứng khi ấn copy
+        var row = btn.parentNode;
+        if (row) {
+            var wrapper = row.querySelector('.text-wrapper');
+            if (wrapper) {
+                var contentSpan = wrapper.querySelector('.text-content');
+                if (contentSpan) {
+                    contentSpan.style.textDecoration = 'line-through';
+                    contentSpan.style.opacity = '0.6';
+                }
+            }
+        }
+        
+        setTimeout(function() {
+            if (textSpan) textSpan.textContent = 'Sao chép';
+            if (icon) icon.className = 'fas fa-copy';
+            btn.style.backgroundColor = '';
+            btn.style.color = '';
+        }, 1500);
+    }
+</script>
+
+<%- include('partials/footer') %>

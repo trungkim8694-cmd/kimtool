@@ -1,0 +1,406 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <meta name="color-scheme" content="light dark" />
+    <title>Kim Tool - Hệ Thống Tạo Link Riêng Biệt</title>
+    <!-- Script chặn nhấp nháy giao diện -->
+    <script>
+        (function() {
+            var theme = localStorage.getItem('theme') || 'dark';
+            if (theme === 'light') {
+                document.documentElement.classList.add('light-theme');
+            }
+        })();
+    </script>
+    <!-- Bootstrap 5 CSS -->
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" />
+    <!-- Google Fonts: Inter & Outfit -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=Outfit:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+    <!-- FontAwesome 6 -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" />
+    <!-- Custom CSS inside head for self-containment -->
+    <style>
+        :root {
+            color-scheme: dark;
+            --bg-color: #0b0f19;
+            --primary-glow: rgba(59, 130, 246, 0.15);
+            --accent-glow: rgba(147, 51, 234, 0.15);
+            --text-color: #f3f4f6;
+            --text-muted: #9ca3af;
+            --accent-color: #3b82f6;
+            --accent-purple: #a855f7;
+            --card-bg: rgba(17, 24, 39, 0.7);
+            --border-color: rgba(255, 255, 255, 0.08);
+            --input-bg: rgba(31, 41, 55, 0.5);
+            --input-focus-bg: rgba(31, 41, 55, 0.8);
+        }
+
+        /* Light theme variables */
+        :root.light-theme {
+            color-scheme: light;
+            --bg-color: #f3f4f6;
+            --primary-glow: rgba(59, 130, 246, 0.05);
+            --accent-glow: rgba(147, 51, 234, 0.05);
+            --text-color: #1f2937;
+            --text-muted: #556070;
+            --accent-color: #2563eb;
+            --accent-purple: #9333ea;
+            --card-bg: rgba(255, 255, 255, 0.85);
+            --border-color: rgba(0, 0, 0, 0.08);
+            --input-bg: rgba(255, 255, 255, 0.95);
+            --input-focus-bg: rgba(255, 255, 255, 1);
+        }
+
+        .text-muted {
+            color: var(--text-muted) !important;
+        }
+
+        .form-control-premium::placeholder {
+            color: var(--text-muted) !important;
+            opacity: 0.8;
+        }
+
+        .text-heading {
+            color: var(--text-color) !important;
+            font-weight: 600;
+        }
+
+        body {
+            background-color: var(--bg-color);
+            background-image: 
+                radial-gradient(at 10% 10%, var(--primary-glow) 0px, transparent 50%),
+                radial-gradient(at 90% 90%, var(--accent-glow) 0px, transparent 50%);
+            color: var(--text-color);
+            font-family: 'Inter', sans-serif;
+            min-height: 100vh;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            overflow-x: hidden;
+            margin: 0;
+            padding: 2rem 0;
+        }
+
+        .title-brand {
+            font-family: 'Outfit', sans-serif;
+            font-weight: 800;
+            font-size: 2.8rem;
+            background: linear-gradient(135deg, #3b82f6 0%, #a855f7 100%);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            margin-bottom: 0.5rem;
+        }
+
+        .glass-card {
+            background: var(--card-bg);
+            backdrop-filter: blur(16px);
+            -webkit-backdrop-filter: blur(16px);
+            border: 1px solid var(--border-color);
+            border-radius: 24px;
+            box-shadow: 0 20px 40px rgba(0, 0, 0, 0.3);
+            padding: 3rem;
+            max-width: 550px;
+            width: 90%;
+            transition: transform 0.3s ease, box-shadow 0.3s ease;
+        }
+
+        .glass-card:hover {
+            box-shadow: 0 25px 50px rgba(59, 130, 246, 0.1);
+        }
+
+        .feature-icon {
+            width: 48px;
+            height: 48px;
+            border-radius: 12px;
+            background: rgba(59, 130, 246, 0.1);
+            color: var(--accent-color);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 1.25rem;
+            margin-right: 1rem;
+            flex-shrink: 0;
+        }
+
+        .feature-item {
+            display: flex;
+            align-items: center;
+            margin-bottom: 1.25rem;
+        }
+
+        .feature-text {
+            font-size: 0.95rem;
+            color: var(--text-muted);
+        }
+
+        .form-control-premium {
+            background-color: var(--input-bg);
+            border: 1px solid var(--border-color);
+            border-radius: 12px;
+            color: var(--text-color) !important;
+            padding: 0.75rem 1rem;
+            font-size: 0.95rem;
+            transition: all 0.2s ease;
+        }
+
+        .form-control-premium:focus {
+            background-color: var(--input-focus-bg) !important;
+            border-color: var(--accent-color);
+            box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.25);
+            outline: none;
+        }
+
+        /* Prevent Chrome Autofill background color issues */
+        .form-control-premium:-webkit-autofill,
+        .form-control-premium:-webkit-autofill:hover, 
+        .form-control-premium:-webkit-autofill:focus {
+            -webkit-text-fill-color: var(--text-color) !important;
+            -webkit-box-shadow: 0 0 0px 1000px var(--input-bg) inset !important;
+            transition: background-color 5000s ease-in-out 0s;
+        }
+
+        .form-control-premium::placeholder {
+            color: rgba(156, 163, 175, 0.6);
+        }
+
+        .btn-gradient {
+            background: linear-gradient(135deg, #3b82f6 0%, #a855f7 100%);
+            border: none;
+            border-radius: 12px;
+            color: white;
+            font-weight: 600;
+            padding: 0.75rem 1.5rem;
+            transition: all 0.3s ease;
+            box-shadow: 0 4px 15px rgba(59, 130, 246, 0.3);
+        }
+
+        .btn-gradient:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 6px 20px rgba(59, 130, 246, 0.4);
+            color: white;
+        }
+
+        .btn-gradient:active {
+            transform: translateY(0);
+        }
+
+        .live-preview-box {
+            background: rgba(255, 255, 255, 0.03);
+            border-radius: 10px;
+            padding: 0.75rem;
+            border-left: 3px solid var(--accent-purple);
+            font-size: 0.85rem;
+            font-family: monospace;
+            color: var(--text-muted);
+            word-break: break-all;
+        }
+
+        .live-slug {
+            color: var(--accent-color);
+            font-weight: bold;
+        }
+
+        .alert-error {
+            background: rgba(239, 68, 68, 0.15);
+            border: 1px solid rgba(239, 68, 68, 0.3);
+            color: #fca5a5;
+            border-radius: 12px;
+            padding: 0.75rem 1rem;
+            font-size: 0.85rem;
+        }
+
+        .alert-success {
+            background: rgba(16, 185, 129, 0.15);
+            border: 1px solid rgba(16, 185, 129, 0.3);
+            color: #a7f3d0;
+            border-radius: 12px;
+            padding: 0.75rem 1rem;
+            font-size: 0.85rem;
+        }
+
+        .text-accent-gradient {
+            background: linear-gradient(135deg, #3b82f6 0%, #a855f7 100%);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            font-weight: 600;
+        }
+
+        .admin-link {
+            font-size: 0.8rem;
+            color: var(--text-muted);
+            text-decoration: none;
+            transition: color 0.2s ease;
+        }
+
+        .admin-link:hover {
+            color: var(--text-color);
+        }
+
+        /* Styling cho nút chuyển theme trên landing page */
+        .btn-theme-toggle-landing {
+            position: fixed;
+            top: 20px;
+            right: 20px;
+            background-color: var(--card-bg);
+            backdrop-filter: blur(12px);
+            -webkit-backdrop-filter: blur(12px);
+            color: var(--text-color);
+            border: 1px solid var(--border-color);
+            border-radius: 50%;
+            width: 42px;
+            height: 42px;
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            cursor: pointer;
+            transition: all 0.25s ease;
+            font-size: 1.05rem;
+            z-index: 1000;
+            box-shadow: 0 4px 15px rgba(0, 0, 0, 0.2);
+        }
+
+        .btn-theme-toggle-landing:hover {
+            transform: scale(1.08) rotate(15deg);
+            color: var(--accent-color);
+            border-color: var(--accent-color);
+            box-shadow: 0 0 15px rgba(59, 130, 246, 0.3);
+        }
+    </style>
+</head>
+<body>
+
+    <!-- Nút chuyển đổi giao diện Sáng/Tối -->
+    <button id="themeToggleBtn" class="btn-theme-toggle-landing" title="Chuyển đổi giao diện Sáng/Tối">
+        <i class="fas fa-sun"></i>
+    </button>
+
+    <div class="glass-card text-center">
+        <div class="mb-4">
+            <i class="fas fa-shield-alt fa-3x text-accent-gradient mb-2"></i>
+            <h1 class="title-brand">Kim Tool</h1>
+            <p class="text-muted small px-3">Tạo không gian quản lý tài khoản game, OTP 2FA và nhận diện mã xác minh hòm thư riêng biệt, an toàn, dễ nhớ.</p>
+        </div>
+
+        <!-- Alerts -->
+        <% if (error) { %>
+            <div class="alert-error text-start mb-4">
+                <i class="fas fa-exclamation-circle me-2"></i> <%= error %>
+            </div>
+        <% } %>
+
+        <% if (success) { %>
+            <div class="alert-success text-start mb-4">
+                <i class="fas fa-check-circle me-2"></i> <%= success %>
+            </div>
+        <% } %>
+
+        <!-- Feature List Section -->
+        <div class="text-start mb-4 p-3 rounded" style="background: rgba(255,255,255,0.01); border: 1px solid rgba(255,255,255,0.02)">
+            <div class="feature-item">
+                <div class="feature-icon"><i class="fas fa-link"></i></div>
+                <div class="feature-text">
+                    <strong class="text-heading">Không gian đường dẫn riêng</strong><br>
+                    Ví dụ: <code>https://app.kigyoulist.com/ten-ban</code>
+                </div>
+            </div>
+            <div class="feature-item">
+                <div class="feature-icon"><i class="fas fa-shield-halved"></i></div>
+                <div class="feature-text">
+                    <strong class="text-heading">Bảo mật tuyệt đối</strong><br>
+                    Tùy chọn đặt mật khẩu bảo vệ để ngăn chặn người lạ truy cập.
+                </div>
+            </div>
+            <div class="feature-item mb-0">
+                <div class="feature-icon"><i class="fas fa-user-gear"></i></div>
+                <div class="feature-text">
+                    <strong class="text-heading">Cấu hình biệt lập</strong><br>
+                    Quản lý danh sách tài khoản, video custom, iCloud, OTP của riêng bạn.
+                </div>
+            </div>
+        </div>
+
+        <!-- Registration Form -->
+        <div class="text-start">
+            <h5 class="mb-3 fw-bold" style="font-family: 'Outfit', sans-serif;"><i class="fas fa-plus-circle me-1 text-accent-purple"></i> Đăng Ký Link Sử Dụng Ngay</h5>
+            
+            <form action="/register" method="post" autocomplete="off">
+                <div class="mb-3">
+                    <label class="form-label text-muted small">Tên đường dẫn (slug) bạn muốn nhận</label>
+                    <input type="text" id="slugInput" name="username" class="form-control form-control-premium" placeholder="ten-ban" required>
+                </div>
+                
+                <div class="mb-3" id="previewBox" style="display: none;">
+                    <div class="live-preview-box">
+                        <i class="fas fa-globe me-1"></i> Link của bạn: <span id="fullUrlText">http://localhost:3000/<span class="live-slug">slug</span></span>
+                    </div>
+                </div>
+
+                <div class="mb-4">
+                    <label class="form-label text-muted small">Đặt mật khẩu bảo vệ không gian (để sửa cài đặt)</label>
+                    <input type="password" name="password" class="form-control form-control-premium" placeholder="Nhập mật khẩu của bạn" required>
+                </div>
+
+                <button type="submit" class="btn btn-gradient w-100 py-2.5">
+                    <i class="fas fa-paper-plane me-2"></i> Khởi tạo Link riêng biệt
+                </button>
+            </form>
+        </div>
+
+
+    </div>
+
+    <!-- Script update live link preview -->
+    <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            // Theme Toggle Logic
+            var toggleBtn = document.getElementById('themeToggleBtn');
+            if (toggleBtn) {
+                var icon = toggleBtn.querySelector('i');
+                
+                // Cập nhật icon ban đầu dựa trên class light-theme của html
+                if (document.documentElement.classList.contains('light-theme')) {
+                    icon.className = 'fas fa-moon';
+                } else {
+                    icon.className = 'fas fa-sun';
+                }
+                
+                toggleBtn.addEventListener('click', function() {
+                    if (document.documentElement.classList.contains('light-theme')) {
+                        document.documentElement.classList.remove('light-theme');
+                        localStorage.setItem('theme', 'dark');
+                        icon.className = 'fas fa-sun';
+                    } else {
+                        document.documentElement.classList.add('light-theme');
+                        localStorage.setItem('theme', 'light');
+                        icon.className = 'fas fa-moon';
+                    }
+                });
+            }
+
+            var slugInput = document.getElementById('slugInput');
+            var previewBox = document.getElementById('previewBox');
+            var liveSlugText = document.querySelector('.live-slug');
+            
+            if (slugInput) {
+                var baseUrl = window.location.protocol + '//' + window.location.host + '/';
+                
+                slugInput.addEventListener('input', function() {
+                    var val = this.value.toLowerCase().trim().replace(/[^a-z0-9_-]/g, '');
+                    this.value = val; // Force alphanumeric and underscores/dashes on fly
+                    
+                    if (val.length > 0) {
+                        previewBox.style.display = 'block';
+                        liveSlugText.textContent = val;
+                    } else {
+                        previewBox.style.display = 'none';
+                    }
+                });
+            }
+        });
+    </script>
+</body>
+</html>
