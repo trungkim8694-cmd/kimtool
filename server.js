@@ -416,7 +416,7 @@ userRouter.use((req, res, next) => {
     
     // Ignore reserved slugs explicitly if any static requests leak through
     if (RESERVED_SLUGS.includes(slug.toLowerCase())) {
-        return next();
+        return next('router');
     }
     
     const db = readUserDb(slug);
@@ -432,14 +432,11 @@ userRouter.use((req, res, next) => {
     res.locals.authenticated = !!(req.session.authenticatedSlugs && req.session.authenticatedSlugs[slug]);
     
     next();
-});
-
-// User Router authentication middleware
-function checkUserAuth(req, res, next) {
+});const checkUserAuth = (req, res, next) => {
     const db = req.userDb;
     const slug = req.userSlug;
     if (!db || !db.settings) {
-        return next();
+        return res.status(404).send('Không tìm thấy đường dẫn này trong hệ thống. Vui lòng kiểm tra lại!');
     }
     if (db.settings.enablePasswordProtection) {
         const isAuth = req.session.authenticatedSlugs && req.session.authenticatedSlugs[slug];
@@ -450,7 +447,7 @@ function checkUserAuth(req, res, next) {
         }
     }
     return next();
-}
+};
 
 // 1. LOGIN & LOGOUT ROUTES PER SLUG
 userRouter.get('/Login', (req, res) => {
